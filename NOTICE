@@ -1,0 +1,16 @@
+# NOTICE
+
+This project includes modified code from the AgileRL library, which is licensed under the Apache License, Version 2.0.
+
+## Modifications to Original Code
+
+The file `maddpg_run.py` is based on `maddpg_original.py` from the AgileRL library. Key modifications include:
+
+1. Environment: Changed from Space Invaders to a custom Surgery Quota Scheduler.
+2. Observation and Action Spaces: Adapted to the new environment.
+3. Hyperparameters: Adjusted for the new problem domain.
+4. Metrics and Logging: Added TensorBoard logging and additional performance metrics.
+5. Reward Function: Modified to suit the new environment.
+6. Training Loop: Adjusted for the specific requirements of the Surgery Quota Scheduler.
+
+These modifications integrate the MADDPG algorithm from AgileRL into our custom environment for surgery scheduling optimization.

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Simulation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Patient Simulation</h1>
+        <form action="{{ url_for('run_simulation') }}" method="post">
+            <div class="form-group">
+                <label for="num_patients">Number of Patients:</label>
+                <input type="number" id="num_patients" name="num_patients" required>
+            </div>
+            <div id="patient-fields"></div>
+            <div class="form-group">
+                <label for="target_state">Target State:</label>
+                <div id="target-state-fields"></div>
+            </div>
+            <button type="submit" class="btn">Run Simulation</button>
+        </form>
+    </div>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>

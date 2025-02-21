@@ -1,0 +1,100 @@
+2025-02-16 20:03:32,267 - INFO - Starting episode 0
+2025-02-16 20:03:32,272 - INFO - Episode 0 - {0: 0, 1: 0, 2: 0, 3: 0, 4: 1, 5: 0, 6: 1}
+2025-02-16 20:03:32,273 - INFO - Observations for client_0: [ 3  1  1  4  0  1  0  1 -1 -1 -1]
+2025-02-16 20:03:32,302 - INFO - Agent action: 1
+2025-02-16 20:03:32,302 - INFO - Observations for client_1: [ 1  0  0  6  0  1 -1 -1 -1 -1 -1]
+2025-02-16 20:03:32,303 - INFO - Agent action: 0
+2025-02-16 20:03:32,310 - INFO - Episode 0 - {0: 1, 1: 0, 2: 0, 3: 1, 4: 0, 5: 0, 6: 0}
+2025-02-16 20:03:32,310 - INFO - Observations for client_0: [ 3  1  1  3  0  1  0  0  0 -1 -1]
+2025-02-16 20:03:32,310 - INFO - Agent action: 1
+2025-02-16 20:03:32,310 - INFO - Observations for client_1: [ 1  0  0  0 -1  1  0  0  1  0  0]
+2025-02-16 20:03:32,311 - INFO - Agent action: 2
+2025-02-16 20:03:32,314 - INFO - Episode 0 - {0: 1, 1: 0, 2: 1, 3: 0, 4: 0, 5: 0, 6: 0}
+2025-02-16 20:03:32,314 - INFO - Observations for client_0: [ 3  1  1  2  0  1  0  0  0  0 -1]
+2025-02-16 20:03:32,315 - INFO - Agent action: 2
+2025-02-16 20:03:32,315 - INFO - Observations for client_1: [ 1  0  0  0 -1  1  0  1  0  0  0]
+2025-02-16 20:03:32,315 - INFO - Agent action: 2
+2025-02-16 20:03:32,318 - INFO - Episode 0 - {0: 1, 1: 0, 2: 1, 3: 0, 4: 0, 5: 0, 6: 0}
+2025-02-16 20:03:32,319 - INFO - Starting episode 1
+2025-02-16 20:03:32,320 - INFO - Episode 1 - {0: 0, 1: 1, 2: 0, 3: 0, 4: 0, 5: 1, 6: 0}
+2025-02-16 20:03:32,320 - INFO - Observations for client_0: [3 1 1 1 0 1 0 0 0 1 0]
+2025-02-16 20:03:32,320 - INFO - Agent action: 2
+2025-02-16 20:03:32,320 - INFO - Observations for client_1: [ 1  0  0  5  0  1  0 -1 -1 -1 -1]
+2025-02-16 20:03:32,320 - INFO - Agent action: 0
+2025-02-16 20:03:32,324 - INFO - Episode 1 - {0: 0, 1: 1, 2: 0, 3: 0, 4: 0, 5: 0, 6: 1}
+2025-02-16 20:03:32,324 - INFO - Observations for client_0: [3 1 1 1 0 1 0 0 0 0 1]
+2025-02-16 20:03:32,324 - INFO - Agent action: 2
+2025-02-16 20:03:32,324 - INFO - Observations for client_1: [ 1  0  0  6  0  1 -1 -1 -1 -1 -1]
+2025-02-16 20:03:32,324 - INFO - Agent action: 0
+2025-02-16 20:03:32,327 - INFO - Episode 1 - {0: 1, 1: 1, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
+2025-02-16 20:03:32,328 - INFO - Observations for client_0: [3 1 1 1 1 1 0 0 0 0 0]
+2025-02-16 20:03:32,328 - INFO - Agent action: 2
+2025-02-16 20:03:32,328 - INFO - Observations for client_1: [ 1  0  0  0 -1  1  1  0  0  0  0]
+2025-02-16 20:03:32,328 - INFO - Agent action: 2
+2025-02-16 20:03:32,331 - INFO - Episode 1 - {0: 1, 1: 1, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
+2025-02-16 20:03:32,331 - INFO - Starting episode 2
+2025-02-16 20:03:32,331 - INFO - Episode 2 - {0: 0, 1: 0, 2: 1, 3: 1, 4: 0, 5: 0, 6: 0}
+2025-02-16 20:03:32,331 - INFO - Observations for client_0: [ 3  1  1  2  0  1  1  0  0  0 -1]
+2025-02-16 20:03:32,331 - INFO - Agent action: 2
+2025-02-16 20:03:32,332 - INFO - Observations for client_1: [ 1  0  0  3  1  1  0  0  0 -1 -1]
+2025-02-16 20:03:32,332 - INFO - Agent action: 1
+2025-02-16 20:03:32,335 - INFO - Episode 2 - {0: 0, 1: 0, 2: 2, 3: 0, 4: 0, 5: 0, 6: 0}
+2025-02-16 20:03:32,335 - INFO - Observations for client_0: [ 3  1  1  2  0  2  0  0  0  0 -1]
+2025-02-16 20:03:32,335 - INFO - Agent action: 2
+2025-02-16 20:03:32,335 - INFO - Observations for client_1: [ 1  0  0  2  0  2  0  0  0  0 -1]
+2025-02-16 20:03:32,336 - INFO - Agent action: 1
+2025-02-16 20:03:32,338 - INFO - Episode 2 - {0: 0, 1: 1, 2: 1, 3: 0, 4: 0, 5: 0, 6: 0}
+2025-02-16 20:03:32,339 - INFO - Observations for client_0: [ 3  1  1  2  1  1  0  0  0  0 -1]
+2025-02-16 20:03:32,339 - INFO - Agent action: 2
+2025-02-16 20:03:32,339 - INFO - Observations for client_1: [1 0 0 1 0 1 1 0 0 0 0]
+2025-02-16 20:03:32,339 - INFO - Agent action: 2
+2025-02-16 20:03:32,342 - INFO - Episode 2 - {0: 0, 1: 1, 2: 1, 3: 0, 4: 0, 5: 0, 6: 0}
+2025-02-16 20:03:32,342 - INFO - Starting episode 3
+2025-02-16 20:03:32,342 - INFO - Episode 3 - {0: 0, 1: 1, 2: 0, 3: 0, 4: 0, 5: 0, 6: 1}
+2025-02-16 20:03:32,342 - INFO - Observations for client_0: [3 1 1 1 0 1 0 0 0 0 1]
+2025-02-16 20:03:32,342 - INFO - Agent action: 2
+2025-02-16 20:03:32,342 - INFO - Observations for client_1: [ 1  0  0  6  0  1 -1 -1 -1 -1 -1]
+2025-02-16 20:03:32,342 - INFO - Agent action: 0
+2025-02-16 20:03:32,345 - INFO - Episode 3 - {0: 1, 1: 1, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
+2025-02-16 20:03:32,345 - INFO - Observations for client_0: [3 1 1 1 1 1 0 0 0 0 0]
+2025-02-16 20:03:32,345 - INFO - Agent action: 2
+2025-02-16 20:03:32,345 - INFO - Observations for client_1: [ 1  0  0  0 -1  1  1  0  0  0  0]
+2025-02-16 20:03:32,345 - INFO - Agent action: 2
+2025-02-16 20:03:32,348 - INFO - Episode 3 - {0: 1, 1: 1, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
+2025-02-16 20:03:32,348 - INFO - Starting episode 4
+2025-02-16 20:03:32,348 - INFO - Episode 4 - {0: 0, 1: 0, 2: 0, 3: 0, 4: 1, 5: 0, 6: 1}
+2025-02-16 20:03:32,348 - INFO - Observations for client_0: [ 3  1  1  4  0  1  0  1 -1 -1 -1]
+2025-02-16 20:03:32,348 - INFO - Agent action: 1
+2025-02-16 20:03:32,348 - INFO - Observations for client_1: [ 1  0  0  6  0  1 -1 -1 -1 -1 -1]
+2025-02-16 20:03:32,348 - INFO - Agent action: 0
+2025-02-16 20:03:32,351 - INFO - Episode 4 - {0: 1, 1: 0, 2: 0, 3: 0, 4: 1, 5: 0, 6: 0}
+2025-02-16 20:03:32,351 - INFO - Observations for client_0: [ 3  1  1  4  0  1  0  0 -1 -1 -1]
+2025-02-16 20:03:32,351 - INFO - Agent action: 0
+2025-02-16 20:03:32,351 - INFO - Observations for client_1: [ 1  0  0  0 -1  1  0  0  0  1  0]
+2025-02-16 20:03:32,351 - INFO - Agent action: 2
+2025-02-16 20:03:32,354 - INFO - Episode 4 - {0: 1, 1: 0, 2: 0, 3: 0, 4: 1, 5: 0, 6: 0}
+2025-02-16 20:03:32,354 - INFO - Observations for client_0: [ 3  1  1  4  0  1  0  0 -1 -1 -1]
+2025-02-16 20:03:32,354 - INFO - Agent action: 0
+2025-02-16 20:03:32,354 - INFO - Observations for client_1: [ 1  0  0  0 -1  1  0  0  0  1  0]
+2025-02-16 20:03:32,354 - INFO - Agent action: 2
+2025-02-16 20:03:32,357 - INFO - Episode 4 - {0: 1, 1: 0, 2: 0, 3: 0, 4: 1, 5: 0, 6: 0}
+2025-02-16 20:03:32,357 - INFO - Observations for client_0: [ 3  1  1  4  0  1  0  0 -1 -1 -1]
+2025-02-16 20:03:32,357 - INFO - Agent action: 1
+2025-02-16 20:03:32,357 - INFO - Observations for client_1: [ 1  0  0  0 -1  1  0  0  0  1  0]
+2025-02-16 20:03:32,357 - INFO - Agent action: 2
+2025-02-16 20:03:32,359 - INFO - Episode 4 - {0: 1, 1: 0, 2: 0, 3: 0, 4: 1, 5: 0, 6: 0}
+2025-02-16 20:03:32,359 - INFO - Observations for client_0: [ 3  1  1  4  0  1  0  0 -1 -1 -1]
+2025-02-16 20:03:32,360 - INFO - Agent action: 1
+2025-02-16 20:03:32,360 - INFO - Observations for client_1: [ 1  0  0  0 -1  1  0  0  0  1  0]
+2025-02-16 20:03:32,360 - INFO - Agent action: 2
+2025-02-16 20:03:32,362 - INFO - Episode 4 - {0: 1, 1: 0, 2: 0, 3: 0, 4: 1, 5: 0, 6: 0}
+2025-02-16 20:03:32,362 - INFO - Observations for client_0: [ 3  1  1  4  0  1  0  0 -1 -1 -1]
+2025-02-16 20:03:32,362 - INFO - Agent action: 1
+2025-02-16 20:03:32,362 - INFO - Observations for client_1: [ 1  0  0  0 -1  1  0  0  0  1  0]
+2025-02-16 20:03:32,362 - INFO - Agent action: 2
+2025-02-16 20:03:32,365 - INFO - Episode 4 - {0: 1, 1: 0, 2: 0, 3: 0, 4: 1, 5: 0, 6: 0}
+2025-02-16 20:03:32,365 - INFO - Observations for client_0: [ 3  1  1  4  0  1  0  0 -1 -1 -1]
+2025-02-16 20:03:32,365 - INFO - Agent action: 1
+2025-02-16 20:03:32,365 - INFO - Observations for client_1: [ 1  0  0  0 -1  1  0  0  0  1  0]
+2025-02-16 20:03:32,365 - INFO - Agent action: 2
+2025-02-16 20:03:32,367 - INFO - Episode 4 - {0: 1, 1: 0, 2: 0, 3: 0, 4: 1, 5: 0, 6: 0}

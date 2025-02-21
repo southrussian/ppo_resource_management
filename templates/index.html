@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concept Masking and Similarity</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+        }
+        .spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold mb-8 text-center text-indigo-600">Concept Masking and Similarity</h1>
+        <form id="promptForm" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <div class="mb-4">
+                <label for="prompt" class="block text-gray-700 text-sm font-bold mb-2">Prompt:</label>
+                <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="prompt" name="prompt" rows="3" required></textarea>
+            </div>
+            <div class="mb-6">
+                <label for="scheme" class="block text-gray-700 text-sm font-bold mb-2">Scheme:</label>
+                <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="scheme" name="scheme" rows="3" required></textarea>
+            </div>
+            <div class="flex items-center justify-center">
+                <button type="submit" class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Extract Concepts
+                </button>
+            </div>
+        </form>
+
+        <div id="conceptVisualization" class="mt-8 hidden">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Concept Impact Visualization:</h2>
+            <div class="flex flex-wrap gap-4">
+                <div id="concept_mean_plot" class="bg-white shadow-md rounded-lg overflow-hidden flex-1"></div>
+                <div id="concept_variance_plot" class="bg-white shadow-md rounded-lg overflow-hidden flex-1"></div>
+            </div>
+        </div>
+
+        <div id="conceptSelection" class="mt-8 hidden">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Select concepts to mask:</h2>
+            <div id="conceptCheckboxes" class="mb-4 flex flex-wrap gap-4"></div>
+            <button id="maskButton" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Mask and Compare
+            </button>
+        </div>
+
+        <div id="results" class="mt-8"></div>
+    </div>
+
+    <div id="loadingOverlay" class="flex justify-center items-center">
+        <div class="spinner">
+            <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-indigo-500"></div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            let conceptsWithWords;
+
+            function showLoading() {
+                $('#loadingOverlay').show();
+            }
+
+            function hideLoading() {
+                $('#loadingOverlay').hide();
+            }
+
+            $('#promptForm').submit(function(e) {
+                e.preventDefault();
+                showLoading();
+                $.post('/process', $(this).serialize(), function(data) {
+                    $('#conceptCheckboxes').empty();
+                    data.concepts.forEach(function(concept) {
+                        $('#conceptCheckboxes').append(`
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" class="form-checkbox text-indigo-600" name="concept" value="${concept}">
+                                <span class="ml-2">${concept}</span>
+                            </label>
+                        `);
+                    });
+                    conceptsWithWords = data.concepts_with_words;
+                    
+                    // Call visualize_concepts after getting the concepts
+                    $.post('/visualize_concepts', {
+                        prompt: $('#prompt').val(),
+                        scheme: $('#scheme').val(),
+                        'concepts[]': data.concepts,
+                        concepts_with_words: JSON.stringify(conceptsWithWords)
+                    }, function(visualizeData) {
+                        // Render the horizontal bar plot
+                        Plotly.newPlot('concept_mean_plot', JSON.parse(visualizeData.concept_mean));
+                        Plotly.newPlot('concept_variance_plot', JSON.parse(visualizeData.concept_variance));
+                        $('#conceptVisualization').removeClass('hidden');
+                        $('#conceptSelection').removeClass('hidden');
+                        hideLoading();
+                    }).fail(function() {
+                        alert('An error occurred while visualizing concepts.');
+                        hideLoading();
+                    });
+                }).fail(function() {
+                    alert('An error occurred while processing your request.');
+                    hideLoading();
+                });
+            });
+
+            $('#maskButton').click(function() {
+                let selectedConcepts = $('input[name="concept"]:checked').map(function() {
+                    return $(this).val();
+                }).get();
+
+                if (selectedConcepts.length === 0) {
+                    alert('Please select at least one concept to mask.');
+                    return;
+                }
+
+                showLoading();
+                $.post('/mask', {
+                    prompt: $('#prompt').val(),
+                    scheme: $('#scheme').val(),
+                    'concepts[]': selectedConcepts,
+                    concepts_with_words: JSON.stringify(conceptsWithWords)
+                }, function(data) {
+                    $('#results').html(`
+                        <h2 class="text-2xl font-semibold mb-4 text-gray-800">Results</h2>
+                        <div class="space-y-6">
+                            ${createResultCard("Original Prompt", data.original_prompt)}
+                            ${createResultCard("Masked Prompt", data.masked_prompt)}
+                            ${createResultCard("Original Answer", data.original_answer)}
+                            ${createResultCard("Masked Answer", data.masked_answer)}
+                            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                                <div class="px-6 py-4">
+                                    <h3 class="font-bold text-xl mb-2 text-gray-800">Similarities:</h3>
+                                    <ul class="list-disc list-inside space-y-2">
+                                        <li>Jaccard Similarity: ${data.jaccard.toFixed(4)}</li>
+                                        <li>Cosine Similarity: ${data.cosine.toFixed(4)}</li>
+                                        <li>Levenshtein Distance: ${data.levenshtein.toFixed(4)}</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                    hideLoading();
+                }).fail(function() {
+                    alert('An error occurred while processing your request.');
+                    hideLoading();
+                });
+            });
+
+            function createResultCard(title, content) {
+                return `
+                    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                        <div class="px-6 py-4">
+                            <h3 class="font-bold text-xl mb-2 text-gray-800">${title}:</h3>
+                            <p class="text-gray-700 text-base">${content}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulation Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Simulation Results</h1>
+        <div class="results">
+            <h2>Average Bids per Day:</h2>
+            <pre>{{ results.avg_bids_per_day }}</pre>
+            <h2>Average Position per Scaling Factor:</h2>
+            <pre>{{ results.avg_position_per_scaling_factor }}</pre>
+            <h2>Operator Preferences:</h2>
+            <pre>{{ results.operator_preferences }}</pre>
+            <h2>Percentage Deviation:</h2>
+            <p>Mean: {{ results.mean_deviation * 100 }}%</p>
+            <p>Std: {{ results.std_deviation * 100 }}%</p>
+            <h2>Agent Distributions by Days in the Last Episode:</h2>
+            <pre>{{ results.last_episode_agent_positions }}</pre>
+        </div>
+        <a href="{{ url_for('index') }}" class="btn">Back to Input</a>
+    </div>
+</body>
+</html>
