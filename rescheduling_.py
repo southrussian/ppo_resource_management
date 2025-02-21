@@ -25,6 +25,7 @@ class Actor(nn.Module):
     def forward(self, obs):
         return self.network(obs)
 
+
 class MAPPOAgent:
     def __init__(self, obs_dim, action_dim):
         self.actor = Actor(obs_dim, action_dim)

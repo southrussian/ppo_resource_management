@@ -83,3 +83,7 @@ In case you need to run the trained algorithm on a bigger set of agents you coul
 In case you need to apapt your agents to operate with a moving planning horizon you probably would like to set a bigger value `num_envs` in a `train.py` script and initialize each game environment with a different `ideal_state` parameter in `sheduler.py` script. This will help agent to generalize their behavior to a different circumstances and mitigate overfitting to a fixed environment. Note, that this will probably cost you a lot of time as the training process will go slowly.
 
 You may find documentation [here](https://github.com/artemisak/rl-task-scheduler/blob/main/DOCUMENTATION.md).
+
+## Financial Support
+
+This project is created by financial support of Laboratory of Intellectual Services and Applications of ITMO University. 2025.
