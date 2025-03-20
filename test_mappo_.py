@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.distributions import Categorical
-from scheduler_ import SurgeryQuotaScheduler
+from scheduler_ import ResourceScheduler
 from tqdm import tqdm
 
 
@@ -24,7 +24,6 @@ class Actor(nn.Module):
         return self.network(obs)
 
 
-# MAPPO Agent for testing
 class MAPPOAgent:
     def __init__(self, obs_dim, action_dim):
         self.actor = Actor(obs_dim, action_dim)
@@ -148,8 +147,8 @@ class MAPPOTester:
 
 # Main testing loop
 if __name__ == "__main__":
-    n_agents = 21
-    env = SurgeryQuotaScheduler(render_mode='terminal', max_agents=n_agents)
+    n_agents = 12
+    env = ResourceScheduler(render_mode='terminal', max_agents=n_agents)
 
     obs_dim = env.observation_space("agent_0").shape[0]
     action_dim = env.action_space("agent_0").n
@@ -157,10 +156,10 @@ if __name__ == "__main__":
     tester = MAPPOTester(env, n_agents, obs_dim, action_dim)
     tester.load_model(path='trained_model')
     tester.bootstrap_test(n_episodes=5, max_steps=7,
-                          target_state={0: {'min': 5, 'max': 5},
-                                        1: {'min': 5, 'max': 5},
-                                        2: {'min': 4, 'max': 4},
-                                        3: {'min': 4, 'max': 4},
-                                        4: {'min': 3, 'max': 3},
+                          target_state={0: {'min': 4, 'max': 4},
+                                        1: {'min': 4, 'max': 4},
+                                        2: {'min': 2, 'max': 2},
+                                        3: {'min': 2, 'max': 2},
+                                        4: {'min': 0, 'max': 0},
                                         5: {'min': 0, 'max': 0},
                                         6: {'min': 0, 'max': 0}})

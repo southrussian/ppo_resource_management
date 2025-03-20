@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.distributions import Categorical
-from scheduler_ import SurgeryQuotaScheduler
+from scheduler_ import ResourceScheduler
 import itertools
 import logging
 import matplotlib.pyplot as plt
@@ -197,8 +197,8 @@ if __name__ == '__main__':
     while not all([client.satisfied for client in manager.clients]):
         logger.info(f"Starting episode {e}")
 
-        env = SurgeryQuotaScheduler(render_mode='terminal', max_agents=len(patiens),
-                                    max_days=7, max_episode_length=7)
+        env = ResourceScheduler(render_mode='terminal', max_agents=len(patiens),
+                                max_days=7, max_episode_length=7)
         obs, _ = env.reset(
             options={
                 # 'target_state': {0: {'min': 5, 'max': 5},

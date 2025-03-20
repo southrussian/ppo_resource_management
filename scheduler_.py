@@ -8,7 +8,7 @@ from pettingzoo import ParallelEnv
 from scipy.stats import levy_stable
 
 
-class SurgeryQuotaScheduler(ParallelEnv):
+class ResourceScheduler(ParallelEnv):
     metadata = {'render_modes': ['human', 'terminal'],
                 'name': 'sqsc_v1'}
 

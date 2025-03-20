@@ -4,7 +4,7 @@ import torch
 import itertools
 import logging
 import matplotlib.pyplot as plt
-from rescheduling_ import MAPPOAgent, Client, MultiAgentSystemOperator, SurgeryQuotaScheduler, calculate_deviation, calculate_scaling_factor_positions
+from rescheduling_ import MAPPOAgent, Client, MultiAgentSystemOperator, ResourceScheduler, calculate_deviation, calculate_scaling_factor_positions
 
 app = Flask(__name__)
 
@@ -48,8 +48,8 @@ def run_simulation():
     while not all([client.satisfied for client in manager.clients]):
         logging.info(f"Starting episode {e}")
 
-        env = SurgeryQuotaScheduler(render_mode='terminal', max_agents=len(patiens),
-                                    max_days=7, max_episode_length=7)
+        env = ResourceScheduler(render_mode='terminal', max_agents=len(patiens),
+                                max_days=7, max_episode_length=7)
         obs, _ = env.reset(
             options={
                 'target_state': target_state,

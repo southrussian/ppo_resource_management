@@ -1,7 +1,7 @@
 import itertools
 import numpy as np
 import torch
-from scheduler_ import SurgeryQuotaScheduler
+from scheduler_ import ResourceScheduler
 from mappo import MAPPOTrainer, MAPPOTester
 
 
@@ -67,8 +67,8 @@ if __name__ == '__main__':
     agents = operator.agents
     preferences = operator.preferences
 
-    env = SurgeryQuotaScheduler(render_mode='terminal', max_agents=12,
-                                max_days=planning_horizon, max_episode_length=3)
+    env = ResourceScheduler(render_mode='terminal', max_agents=12,
+                            max_days=planning_horizon, max_episode_length=3)
     env.reset()
 
     num_agents = env.num_agents

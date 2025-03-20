@@ -2,12 +2,10 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.distributions import Categorical
-from scheduler_ import SurgeryQuotaScheduler
+from scheduler_ import ResourceScheduler
 import itertools
 import logging
 import matplotlib.pyplot as plt
-import torch.nn.functional as F
-from tqdm import tqdm
 
 
 class Actor(nn.Module):
@@ -43,6 +41,7 @@ class MAPPOAgent:
         logging.info(f"Agent action: {action.item()}")
         return action.item()
 
+
 class Client:
     def __init__(self, name, urgency, completeness, complexity) -> None:
         self.name = name
@@ -75,6 +74,7 @@ class Client:
             self.acceptance_rate = 1.0
         return answer
 
+
 class MultiAgentSystemOperator:
     def __init__(self, list_of_clients) -> None:
         self.clients = list_of_clients
@@ -83,7 +83,7 @@ class MultiAgentSystemOperator:
         for client in self.clients:
             client.satisfied = client.give_feedback()
 
-    def assign_agnets(self, agents):
+    def assign_agents(self, agents):
         for client in self.clients:
             health_state = (client.urgency, client.completeness, client.complexity)
             client.assigned_agent = agents[health_state]
@@ -98,19 +98,21 @@ class MultiAgentSystemOperator:
             i += 1
         return actions
 
-def plot_histogram(data, episode_num):
-    days = list(data.keys())
-    values = list(data.values())
 
-    plt.figure(figsize=(10, 6))
-    plt.bar(days, values, color='skyblue')
-    plt.xlabel('Week Days')
-    plt.ylabel('Values of occupied slots')
-    plt.title(f'Histogram of slots distribution of episode: {episode_num+1}')
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.savefig(f'histogram_episode_{episode_num+1}.png')
-    plt.show()
+# def plot_histogram(data, episode_num):
+#     days = list(data.keys())
+#     values = list(data.values())
+#
+#     plt.figure(figsize=(10, 6))
+#     plt.bar(days, values, color='skyblue')
+#     plt.xlabel('Week Days')
+#     plt.ylabel('Values of occupied slots')
+#     plt.title(f'Histogram of slots distribution of episode: {episode_num+1}')
+#     plt.xticks(rotation=45)
+#     plt.tight_layout()
+#     plt.savefig(f'histogram_episode_{episode_num+1}.png')
+#     plt.show()
+
 
 def calculate_deviation(observed_states, target_state):
     num_episodes = len(observed_states)
@@ -134,6 +136,7 @@ def calculate_deviation(observed_states, target_state):
 
     return average_bootstrap_deviation, std_bootstrap_deviation
 
+
 def calculate_scaling_factor_positions(observed_states):
     scaling_factor_positions = {i: [] for i in range(7)}
 
@@ -143,6 +146,7 @@ def calculate_scaling_factor_positions(observed_states):
 
     average_position_per_scaling_factor = {day: np.mean(values) for day, values in scaling_factor_positions.items()}
     return average_position_per_scaling_factor
+
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO,
@@ -214,7 +218,7 @@ if __name__ == '__main__':
         agents[agent].load_model(f'trained_model/actor_{i}.pth')
 
     manager = MultiAgentSystemOperator(list_of_clients=patients)
-    manager.assign_agnets(
+    manager.assign_agents(
         {health_state: {'agent_name': agent_name, 'model_file': model_file} for health_state, (agent_name, model_file)
          in zip(health_states, agents.items())})
 
@@ -253,8 +257,8 @@ if __name__ == '__main__':
     while not all([client.satisfied for client in manager.clients]):
         logger.info(f"Starting episode {e}")
 
-        env = SurgeryQuotaScheduler(render_mode='terminal', max_agents=len(patients),
-                                    max_days=7, max_episode_length=7)
+        env = ResourceScheduler(render_mode='terminal', max_agents=len(patients),
+                                max_days=7, max_episode_length=7)
         obs, _ = env.reset(
             options={
                 'target_state': target_state,

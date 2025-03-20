@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.distributions import Categorical
-from scheduler_ import SurgeryQuotaScheduler
+from scheduler_ import ResourceScheduler
 from torch.utils.tensorboard import SummaryWriter
 import os
 from tqdm import tqdm
@@ -170,7 +170,7 @@ class MAPPOTrainer:
 
 # Main training loop
 if __name__ == "__main__":
-    env = SurgeryQuotaScheduler()
+    env = ResourceScheduler()
     n_agents = 12
     obs_dim = env.observation_space("agent_0").shape[0]
     action_dim = env.action_space("agent_0").n

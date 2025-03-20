@@ -6,7 +6,7 @@ from collections import deque
 import random
 from tqdm import tqdm
 
-from scheduler_ import SurgeryQuotaScheduler
+from scheduler_ import ResourceScheduler
 
 
 class MultiAgentDT(nn.Module):
@@ -259,7 +259,7 @@ def test(model, env, num_episodes=10):
 
 if __name__ == "__main__":
     # Инициализация среды
-    env = SurgeryQuotaScheduler()
+    env = ResourceScheduler()
 
     # Параметры модели
     num_agents = 12
