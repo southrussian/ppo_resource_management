@@ -49,8 +49,10 @@ class MAPPOTester:
         self.options = options
         self.n_agents = n_agents
         self.agents = [MAPPOAgent(obs_dim, action_dim) for _ in range(n_agents)]
+        self.logs = []
 
-    def calculate_deviation(self, observed_states, target_state):
+    @staticmethod
+    def calculate_deviation(observed_states, target_state):
         num_episodes = len(observed_states)
         bootstrap_average_distribution = {i: sum(episode[i] for episode in observed_states) / num_episodes for i in
                                           range(7)}
@@ -72,11 +74,43 @@ class MAPPOTester:
 
         return average_bootstrap_deviation, std_bootstrap_deviation
 
+    def _log_agent_step(self, agent_id, episode, step, obs, action, info, next_info):
+        current_position = info['position']
+        prev_day = (current_position - 1) % 7
+        next_day = (current_position + 1) % 7
+
+        return {
+            "agent_id": agent_id,
+            "episode": episode,
+            "step": step,
+            "beliefs": {
+                "urgency": info['urgency'],
+                "completeness": info['completeness'],
+                "complexity": info['complexity'],
+                "current_position": current_position,
+                "slot_occupancy_prev": self.env.observed_state.get(prev_day, 0),
+                "slot_occupancy_current": self.env.observed_state.get(current_position, 0),
+                "slot_occupancy_next": self.env.observed_state.get(next_day, 0)
+            },
+            "desires": [
+                "optimize_surgery_day",
+                "reduce_conflicts",
+                "balance_workload"
+            ],
+            "intention": action,
+            "state_after_action": {
+                "new_position": next_info['position'],
+                "scaling_factor": next_info['scaling_factor'],
+                "current_day": next_info['position']
+            }
+        }
+
     def test(self, n_episodes, max_steps, target_state):
         all_observed_states = []
         all_final_positions = []
         all_scaling_factors = []
 
+        self.logs = []
         for e in tqdm(range(n_episodes), desc="Bootstrap testing..."):
             obs, info = self.env.reset(options=self.options)
 
@@ -89,11 +123,32 @@ class MAPPOTester:
 
             for step in range(max_steps):
                 actions = {}
+                step_logs = []
                 for i, agent in enumerate(self.agents):
+                    agent_obs = obs[f"agent_{i}"]
                     action = agent.get_action(obs[f"agent_{i}"])
                     actions[f"agent_{i}"] = action
+                    step_logs.append({
+                        'agent_id': i,
+                        'pre_info': info[f"agent_{i}"]
+                    })
 
-                next_obs, _, dones, truncations, info = self.env.step(actions)
+                next_obs, _, dones, truncations, next_info = self.env.step(actions)
+
+                # Log post-step state
+                for log in step_logs:
+                    agent_id = log['agent_id']
+                    log_entry = self._log_agent_step(
+                        agent_id=agent_id,
+                        episode=e,
+                        step=step,
+                        obs=obs[f"agent_{agent_id}"],
+                        action=actions[f"agent_{agent_id}"],
+                        info=log['pre_info'],
+                        next_info=next_info[f"agent_{agent_id}"]
+                    )
+                    self.logs.append(log_entry)
+
                 print(f'Step {step}', self.env.render())
                 print([(pos, sf) for pos, sf in zip([agent_info['position'] for agent_info in info.values()],
                                                     [agent_info['scaling_factor'] for agent_info in info.values()])])
@@ -103,7 +158,7 @@ class MAPPOTester:
                     all_final_positions.extend([agent_info['position'] for agent_info in info.values()])
                     all_scaling_factors.extend([agent_info['scaling_factor'] for agent_info in info.values()])
 
-                obs = next_obs
+                obs, info = next_obs, next_info
 
                 if all(dones.values()) or all(truncations.values()):
                     break
@@ -144,6 +199,26 @@ class MAPPOTester:
             agent.load_model(os.path.join(path, f'actor_{i}.pth'))
         print(f"Loaded model from {path}")
 
+    def format_logs_for_llm(self):
+        formatted = []
+        for log in self.logs:
+            formatted.append(
+                f"Agent {log['agent_id']} [Episode {log['episode']} Step {log['step']}]:\n"
+                f"Beliefs:\n"
+                f"- Urgency: {log['beliefs']['urgency']} | "
+                f"Completeness: {log['beliefs']['completeness']} | "
+                f"Complexity: {log['beliefs']['complexity']}\n"
+                f"- Position: {log['beliefs']['current_position']} | "
+                f"Slots: Prev({log['beliefs']['slot_occupancy_prev']}) "
+                f"Current({log['beliefs']['slot_occupancy_current']}) "
+                f"Next({log['beliefs']['slot_occupancy_next']})\n"
+                f"Intention: Action {log['intention']} ({self.env.agent_action_mapping[log['intention']]})\n"
+                f"Result: New Position {log['state_after_action']['new_position']} | "
+                f"SF: {log['state_after_action']['scaling_factor']} | "
+                f"Day: {log['state_after_action']['current_day']}\n"
+            )
+        return "\n".join(formatted)
+
 
 # Main testing loop
 if __name__ == "__main__":
@@ -163,3 +238,7 @@ if __name__ == "__main__":
                                         4: {'min': 0, 'max': 0},
                                         5: {'min': 0, 'max': 0},
                                         6: {'min': 0, 'max': 0}})
+
+    llm_logs = tester.format_logs_for_llm()
+    print("\nSystem logs for LLM analysis:")
+    print(llm_logs)
