@@ -74,7 +74,7 @@ class MAPPOTester:
 
         return average_bootstrap_deviation, std_bootstrap_deviation
 
-    def _log_agent_step(self, agent_id, episode, step, obs, action, info, next_info):
+    def _log_agent_step(self, agent_id, episode, step, action, info, next_info):
         current_position = info['position']
         prev_day = (current_position - 1) % 7
         next_day = (current_position + 1) % 7
@@ -142,7 +142,6 @@ class MAPPOTester:
                         agent_id=agent_id,
                         episode=e,
                         step=step,
-                        obs=obs[f"agent_{agent_id}"],
                         action=actions[f"agent_{agent_id}"],
                         info=log['pre_info'],
                         next_info=next_info[f"agent_{agent_id}"]
