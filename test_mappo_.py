@@ -202,19 +202,19 @@ class MAPPOTester:
         formatted = []
         for log in self.logs:
             formatted.append(
-                f"Agent {log['agent_id']} [Episode {log['episode']} Step {log['step']}]:\n"
-                f"Beliefs:\n"
-                f"- Urgency: {log['beliefs']['urgency']} | "
-                f"Completeness: {log['beliefs']['completeness']} | "
-                f"Complexity: {log['beliefs']['complexity']}\n"
-                f"- Position: {log['beliefs']['current_position']} | "
-                f"Slots: Prev({log['beliefs']['slot_occupancy_prev']}) "
-                f"Current({log['beliefs']['slot_occupancy_current']}) "
-                f"Next({log['beliefs']['slot_occupancy_next']})\n"
-                f"Intention: Action {log['intention']} ({self.env.agent_action_mapping[log['intention']]})\n"
-                f"Result: New Position {log['state_after_action']['new_position']} | "
-                f"SF: {log['state_after_action']['scaling_factor']} | "
-                f"Day: {log['state_after_action']['current_day']}\n"
+                f"Агент {log['agent_id']} [Эпизод {log['episode']} Шаг {log['step']}]:\n"
+                f"Убеждения:\n"
+                f"- Срочность: {log['beliefs']['urgency']} | "
+                f"Полнота информации: {log['beliefs']['completeness']} | "
+                f"Сложность: {log['beliefs']['complexity']}\n"
+                f"- Позиция: {log['beliefs']['current_position']} | "
+                f"Слоты: Предыдущий({log['beliefs']['slot_occupancy_prev']}) "
+                f"Текущий({log['beliefs']['slot_occupancy_current']}) "
+                f"Следующий({log['beliefs']['slot_occupancy_next']})\n"
+                f"Намерения: Действие {log['intention']} ({self.env.agent_action_mapping_text[log['intention']]})\n"
+                f"Результат: Новая позиция {log['state_after_action']['new_position']} | "
+                f"Коэфф. масштабирования: {log['state_after_action']['scaling_factor']} | "
+                f"День: {log['state_after_action']['current_day']}\n"
             )
         return "\n".join(formatted)
 
@@ -239,5 +239,5 @@ if __name__ == "__main__":
                                         6: {'min': 0, 'max': 0}})
 
     llm_logs = tester.format_logs_for_llm()
-    print("\nSystem logs for LLM analysis:")
+    print("\nСистемные логи для анализа:")
     print(llm_logs)

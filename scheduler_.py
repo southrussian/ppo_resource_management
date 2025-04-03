@@ -19,6 +19,8 @@ class ResourceScheduler(ParallelEnv):
         self.possible_agents = ["agent_" + str(r) for r in range(self.max_agents)]
         self.agent_name_mapping = dict(zip(self.possible_agents, list(range(len(self.possible_agents)))))
         self.agent_action_mapping = {0: 1, 1: -1, 2: 0}
+        self.agent_action_mapping_text = {0: 'переместиться на следующий день', 1: 'переместиться на предыдущий день',
+                                          2: 'остаться на текущем дне'}
         self.render_mode = render_mode
 
     @functools.lru_cache(maxsize=None)
