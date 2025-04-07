@@ -218,7 +218,7 @@ class MAPPOTester:
                     f"Коэфф. масштабирования: {log['state_after_action']['scaling_factor']} | "
                     f"День: {log['state_after_action']['current_day']}\n"
                 )
-        return "\n".join(formatted)
+        return "\nСистемные логи для анализа:\n".join(formatted)
 
 
 # Main testing loop
@@ -241,7 +241,6 @@ if __name__ == "__main__":
                                         6: {'min': 0, 'max': 0}})
 
     llm_logs = tester.format_logs_for_llm(agent_id=0)
-    print("\nСистемные логи для анализа:")
     print(llm_logs)
 
     yandex_explain(logs=llm_logs)
