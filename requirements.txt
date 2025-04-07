@@ -100,3 +100,4 @@ urllib3==2.2.2
 virtualenv==20.26.3
 wandb==0.13.11
 Werkzeug==3.0.3
+python-dotenv

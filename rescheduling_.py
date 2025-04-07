@@ -127,12 +127,12 @@ def calculate_deviation(observed_states, target_state):
         if target_value != 0:  # Avoid division by zero
             bootstrap_average_percentage_deviations[key] = np.abs(target_value - value) / target_value
         else:
-            bootstrap_average_percentage_deviations[key] = np.nan  # Handle the zero case
+            bootstrap_average_percentage_deviations[key] = np.nan
 
     average_bootstrap_deviation = np.nanmean(
-        list(bootstrap_average_percentage_deviations.values()))  # Use np.nanmean to ignore NaNs
+        list(bootstrap_average_percentage_deviations.values()))
     std_bootstrap_deviation = np.nanstd(
-        list(bootstrap_average_percentage_deviations.values()))  # Use np.nanstd to ignore NaNs
+        list(bootstrap_average_percentage_deviations.values()))
 
     return average_bootstrap_deviation, std_bootstrap_deviation
 

@@ -5,6 +5,7 @@ import torch.nn as nn
 from torch.distributions import Categorical
 from scheduler_ import ResourceScheduler
 from tqdm import tqdm
+from explainability import yandex_explain
 
 
 # Define the Actor network (same as in training)
@@ -198,24 +199,25 @@ class MAPPOTester:
             agent.load_model(os.path.join(path, f'actor_{i}.pth'))
         print(f"Loaded model from {path}")
 
-    def format_logs_for_llm(self):
+    def format_logs_for_llm(self, agent_id):
         formatted = []
         for log in self.logs:
-            formatted.append(
-                f"Агент {log['agent_id']} [Эпизод {log['episode']} Шаг {log['step']}]:\n"
-                f"Убеждения:\n"
-                f"- Срочность: {log['beliefs']['urgency']} | "
-                f"Полнота информации: {log['beliefs']['completeness']} | "
-                f"Сложность: {log['beliefs']['complexity']}\n"
-                f"- Позиция: {log['beliefs']['current_position']} | "
-                f"Слоты: Предыдущий({log['beliefs']['slot_occupancy_prev']}) "
-                f"Текущий({log['beliefs']['slot_occupancy_current']}) "
-                f"Следующий({log['beliefs']['slot_occupancy_next']})\n"
-                f"Намерения: Действие {log['intention']} ({self.env.agent_action_mapping_text[log['intention']]})\n"
-                f"Результат: Новая позиция {log['state_after_action']['new_position']} | "
-                f"Коэфф. масштабирования: {log['state_after_action']['scaling_factor']} | "
-                f"День: {log['state_after_action']['current_day']}\n"
-            )
+            if log['agent_id'] == agent_id:
+                formatted.append(
+                    f"Агент {log['agent_id']} [Эпизод {log['episode']} Шаг {log['step']}]:\n"
+                    f"Убеждения:\n"
+                    f"- Срочность: {log['beliefs']['urgency']} | "
+                    f"Полнота информации: {log['beliefs']['completeness']} | "
+                    f"Сложность: {log['beliefs']['complexity']}\n"
+                    f"- Позиция: {log['beliefs']['current_position']} | "
+                    f"Слоты: Предыдущий({log['beliefs']['slot_occupancy_prev']}) "
+                    f"Текущий({log['beliefs']['slot_occupancy_current']}) "
+                    f"Следующий({log['beliefs']['slot_occupancy_next']})\n"
+                    f"Намерения: Действие {log['intention']} ({self.env.agent_action_mapping_text[log['intention']]})\n"
+                    f"Результат: Новая позиция {log['state_after_action']['new_position']} | "
+                    f"Коэфф. масштабирования: {log['state_after_action']['scaling_factor']} | "
+                    f"День: {log['state_after_action']['current_day']}\n"
+                )
         return "\n".join(formatted)
 
 
@@ -238,6 +240,8 @@ if __name__ == "__main__":
                                         5: {'min': 0, 'max': 0},
                                         6: {'min': 0, 'max': 0}})
 
-    llm_logs = tester.format_logs_for_llm()
+    llm_logs = tester.format_logs_for_llm(agent_id=0)
     print("\nСистемные логи для анализа:")
     print(llm_logs)
+
+    yandex_explain(logs=llm_logs)
