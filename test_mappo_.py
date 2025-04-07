@@ -6,6 +6,7 @@ from torch.distributions import Categorical
 from scheduler_ import ResourceScheduler
 from tqdm import tqdm
 from explainability import yandex_explain
+from gigachat_explainability import gigachat
 
 
 # Define the Actor network (same as in training)
@@ -244,3 +245,6 @@ if __name__ == "__main__":
     print(llm_logs)
 
     yandex_explain(logs=llm_logs)
+    print('\n', '-------' * 20, '\n')
+    gigachat(logs=llm_logs)
+
