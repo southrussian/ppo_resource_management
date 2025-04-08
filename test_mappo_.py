@@ -219,7 +219,7 @@ class MAPPOTester:
                     f"Коэфф. масштабирования: {log['state_after_action']['scaling_factor']} | "
                     f"День: {log['state_after_action']['current_day']}\n"
                 )
-        return "\nСистемные логи для анализа:\n".join(formatted)
+        return "\n".join(formatted)
 
 
 # Main testing loop

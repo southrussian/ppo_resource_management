@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
+
+
 def gigachat(logs):
     with GigaChat(credentials=os.getenv("SBER"), verify_ssl_certs=False, model='GigaChat') as giga:
         prompt = f"""
