@@ -9,7 +9,6 @@ from explainability import yandex_explain
 from gigachat_explainability import gigachat_explain
 
 
-# Define the Actor network (same as in training)
 class Actor(nn.Module):
     def __init__(self, obs_dim, action_dim):
         super(Actor, self).__init__()
@@ -224,7 +223,7 @@ class MAPPOTester:
 
 if __name__ == "__main__":
     n_agents = 12
-    env = ResourceScheduler(render_mode='terminal', max_agents=n_agents)
+    env = ResourceScheduler(render_mode='human', max_agents=n_agents)
 
     obs_dim = env.observation_space("agent_0").shape[0]
     action_dim = env.action_space("agent_0").n

@@ -225,22 +225,21 @@ if __name__ == '__main__':
                         ])
     logger = logging.getLogger()
 
-    # Input for number of patients
     while True:
         try:
-            num_patients = int(input("Enter the number of patients: "))
-            if num_patients > 0:
+            num_clients = int(input("Enter the number of clients: "))
+            if num_clients > 0:
                 break
             else:
-                print("The number of patients must be a positive integer. Please try again.")
+                print("The number of clients must be a positive integer. Please try again.")
         except ValueError:
-            print("Invalid input. Please enter a valid integer for the number of patients.")
+            print("Invalid input. Please enter a valid integer for the number of clients.")
 
-    patients = []
-    for i in range(num_patients):
+    clients = []
+    for i in range(num_clients):
         while True:
             try:
-                urgency = int(input(f"Enter urgency for patient {i+1} (1-3): "))
+                urgency = int(input(f"Enter urgency for client {i+1} (1-3): "))
                 if 1 <= urgency <= 3:
                     break
                 else:
@@ -250,7 +249,7 @@ if __name__ == '__main__':
 
         while True:
             try:
-                completeness = int(input(f"Enter completeness for patient {i+1} (0-1): "))
+                completeness = int(input(f"Enter completeness for client {i+1} (0-1): "))
                 if 0 <= completeness <= 1:
                     break
                 else:
@@ -260,7 +259,7 @@ if __name__ == '__main__':
 
         while True:
             try:
-                complexity = int(input(f"Enter complexity for patient {i+1} (0-1): "))
+                complexity = int(input(f"Enter complexity for client {i+1} (0-1): "))
                 if 0 <= complexity <= 1:
                     break
                 else:
@@ -268,7 +267,7 @@ if __name__ == '__main__':
             except ValueError:
                 print("Invalid input. Please enter a valid integer for complexity.")
 
-        patients.append(Client(name=f'client_{i}', urgency=urgency, completeness=completeness, complexity=complexity))
+        clients.append(Client(name=f'client_{i}', urgency=urgency, completeness=completeness, complexity=complexity))
 
     urgency_range = range(1, 4)
     completeness_range = range(0, 2)
@@ -284,7 +283,7 @@ if __name__ == '__main__':
     for i, agent in enumerate(agents):
         agents[agent].load_model(f'trained_model/actor_{i}.pth')
 
-    manager = MultiAgentSystemOperator(list_of_clients=patients)
+    manager = MultiAgentSystemOperator(list_of_clients=clients)
     manager.assign_agents(
         {health_state: {'agent_name': agent_name, 'model_file': model_file} for health_state, (agent_name, model_file)
          in zip(health_states, agents.items())})
@@ -308,10 +307,10 @@ if __name__ == '__main__':
                 print("Invalid input. Please enter valid integers for the minimum and maximum target values.")
 
     initial_positions = {}
-    for i in range(num_patients):
+    for i in range(num_clients):
         while True:
             try:
-                position = int(input(f"Enter initial position for patient {i+1} (0-6): "))
+                position = int(input(f"Enter initial position for client {i+1} (0-6): "))
                 if 0 <= position <= 6:
                     initial_positions[f'agent_{i}'] = position
                     break
@@ -323,7 +322,7 @@ if __name__ == '__main__':
     while not all([client.satisfied for client in manager.clients]):
         logger.info(f"Starting episode {e}")
 
-        env = ResourceScheduler(render_mode='terminal', max_agents=len(patients),
+        env = ResourceScheduler(render_mode='terminal', max_agents=len(clients),
                                 max_days=7, max_episode_length=7)
         obs, _ = env.reset(
             options={
