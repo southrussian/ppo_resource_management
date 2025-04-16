@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Surgery Scheduler Simulation</title>
+    <title>Scheduler Simulation</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -123,7 +124,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Client template
         const clientTemplate = (index) => `
@@ -296,100 +296,89 @@
             }
 
             function displayResults(result) {
-    const resultsPlaceholder = document.getElementById('results-placeholder');
-    const resultsContent = document.getElementById('results-content');
-    const meanDeviation = document.getElementById('mean-deviation');
-    const stdDeviation = document.getElementById('std-deviation');
-    const agentDistribution = document.getElementById('agent-distribution');
-    const yandexContent = document.getElementById('yandex-content');
-    const gigachatContent = document.getElementById('gigachat-content');
+                const resultsPlaceholder = document.getElementById('results-placeholder');
+                const resultsContent = document.getElementById('results-content');
+                const meanDeviation = document.getElementById('mean-deviation');
+                const stdDeviation = document.getElementById('std-deviation');
+                const agentDistribution = document.getElementById('agent-distribution');
+                const yandexContent = document.getElementById('yandex-content');
+                const gigachatContent = document.getElementById('gigachat-content');
 
-    // Show results
-    resultsPlaceholder.classList.add('hidden');
-    resultsContent.classList.remove('hidden');
+                // Show results
+                resultsPlaceholder.classList.add('hidden');
+                resultsContent.classList.remove('hidden');
 
-    // Update stats
-    meanDeviation.textContent = result.stats.meanDeviation.toFixed(2) + '%';
-    stdDeviation.textContent = result.stats.stdDeviation.toFixed(2) + '%';
+                // Update stats
+                meanDeviation.textContent = result.stats.meanDeviation.toFixed(2) + '%';
+                stdDeviation.textContent = result.stats.stdDeviation.toFixed(2) + '%';
 
-    // Update agent distribution
-    agentDistribution.innerHTML = '';
-    for (const [day, agents] of Object.entries(result.stats.lastEpisodeAgentPositions)) {
-        const dayElement = document.createElement('div');
-        dayElement.className = 'bg-gray-50 p-3 rounded-md';
+                // Update agent distribution
+                agentDistribution.innerHTML = '';
+                for (const [day, agents] of Object.entries(result.stats.lastEpisodeAgentPositions)) {
+                    const dayElement = document.createElement('div');
+                    dayElement.className = 'bg-gray-50 p-3 rounded-md';
 
-        const dayTitle = document.createElement('h4');
-        dayTitle.className = 'font-medium mb-1';
-        dayTitle.textContent = `Day ${parseInt(day) + 1}`;
-        dayElement.appendChild(dayTitle);
+                    const dayTitle = document.createElement('h4');
+                    dayTitle.className = 'font-medium mb-1';
+                    dayTitle.textContent = `Day ${parseInt(day) + 1}`;
+                    dayElement.appendChild(dayTitle);
 
-        const agentsList = document.createElement('ul');
-        agentsList.className = 'text-sm space-y-1';
-        agents.forEach(agent => {
-            const li = document.createElement('li');
-            li.textContent = agent;
-            agentsList.appendChild(li);
-        });
-        dayElement.appendChild(agentsList);
+                    const agentsList = document.createElement('ul');
+                    agentsList.className = 'text-sm space-y-1';
+                    agents.forEach(agent => {
+                        const li = document.createElement('li');
+                        li.textContent = agent;
+                        agentsList.appendChild(li);
+                    });
+                    dayElement.appendChild(agentsList);
 
-        agentDistribution.appendChild(dayElement);
-    }
+                    agentDistribution.appendChild(dayElement);
+                }
 
-    // Update chart - только если canvas существует
-    const chartCanvas = document.getElementById('avg-bids-chart');
-    if (chartCanvas && chartCanvas.getContext) {
-        updateChart('avg-bids-chart',
-            Object.keys(result.stats.avgBidsPerDay).map(d => `Day ${parseInt(d) + 1}`),
-            Object.values(result.stats.avgBidsPerDay),
-            'Average Bids per Day');
-    }
+                // Update chart
+                updateChart('avg-bids-chart',
+                    Object.keys(result.stats.avgBidsPerDay).map(d => `Day ${parseInt(d) + 1}`),
+                    Object.values(result.stats.avgBidsPerDay),
+                    'Average Bids per Day');
 
-    // Update explanations - безопасная обработка
-    if (result.explanations) {
-        yandexContent.innerHTML = result.explanations.yandex ?
-            result.explanations.yandex : '<p>No analysis available from YandexGPT</p>';
-        gigachatContent.innerHTML = result.explanations.gigachat ?
-            result.explanations.gigachat : '<p>No analysis available from GigaChat</p>';
-    } else {
-        yandexContent.innerHTML = '<p>No analysis available from YandexGPT</p>';
-        gigachatContent.innerHTML = '<p>No analysis available from GigaChat</p>';
-    }
-}
-
-function updateChart(canvasId, labels, data, label) {
-    const ctx = document.getElementById(canvasId);
-    if (!ctx) return;
-
-    const context = ctx.getContext('2d');
-    if (!context) return;
-
-    if (window.avgBidsChart) {
-        window.avgBidsChart.destroy();
-    }
-
-    window.avgBidsChart = new Chart(context, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: label,
-                data: data,
-                backgroundColor: 'rgba(79, 70, 229, 0.7)',
-                borderColor: 'rgba(79, 70, 229, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true
+                // Update explanations
+                if (result.explanations) {
+                    yandexContent.innerHTML = result.explanations.yandex ?
+                        result.explanations.yandex : '<p>No analysis available from YandexGPT</p>';
+                    gigachatContent.innerHTML = result.explanations.gigachat ?
+                        result.explanations.gigachat : '<p>No analysis available from GigaChat</p>';
+                } else {
+                    yandexContent.innerHTML = '<p>No analysis available from YandexGPT</p>';
+                    gigachatContent.innerHTML = '<p>No analysis available from GigaChat</p>';
                 }
             }
-        }
-    });
-}
+
+            function updateChart(canvasId, labels, data, label) {
+                const trace = {
+                    x: labels,
+                    y: data,
+                    type: 'bar',
+                    marker: {
+                        color: 'rgba(79, 70, 229, 0.7)',
+                        line: {
+                            color: 'rgba(79, 70, 229, 1)',
+                            width: 1
+                        }
+                    },
+                    name: label
+                };
+
+                const layout = {
+                    title: label,
+                    xaxis: { title: 'Day' },
+                    yaxis: { title: 'Average Bids' },
+                    barmode: 'group',
+                    bargap: 0.15,
+                    bargroupgap: 0.1
+                };
+
+                Plotly.newPlot(canvasId, [trace], layout);
+            }
         });
     </script>
 </body>
