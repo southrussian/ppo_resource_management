@@ -5,7 +5,7 @@ import os
 load_dotenv()
 
 
-def gigachat_explain(logs):
+def gigachat_explain(logs) -> str:
     with GigaChat(credentials=os.getenv("SBER"), verify_ssl_certs=False, model='GigaChat') as giga:
         prompt = f"""
         Ты — интеллектуальная система для планирования грузоперевозок на складе. 
@@ -34,3 +34,4 @@ def gigachat_explain(logs):
 
         response = giga.chat(prompt)
         print(response.choices[0].message.content)
+        return str(response.choices[0].message.content)

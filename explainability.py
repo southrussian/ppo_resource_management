@@ -6,7 +6,7 @@ import os
 load_dotenv()
 
 
-def yandex_explain(logs):
+def yandex_explain(logs) -> str:
     sdk = YCloudML(
         folder_id=os.getenv('FOLDER_ID'),
         auth=os.getenv('AUTH'),
@@ -68,3 +68,4 @@ def yandex_explain(logs):
 
     for alternative in result:
         print(alternative.text)
+        return str(alternative.text)

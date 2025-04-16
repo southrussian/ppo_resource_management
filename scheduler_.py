@@ -57,7 +57,7 @@ class ResourceScheduler(ParallelEnv):
             self.win.fill(BACKGROUND)
 
             # Draw title
-            title = title_font.render("Surgery Schedule", True, TITLE_COLOR)
+            title = title_font.render("Симуляция распределения ресурсов", True, TITLE_COLOR)
             self.win.blit(title, (self.win_width // 2 - title.get_width() // 2, 20))
 
             # Calculate positions for days with automatic spacing
