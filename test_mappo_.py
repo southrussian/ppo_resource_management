@@ -6,7 +6,7 @@ from torch.distributions import Categorical
 from scheduler_ import ResourceScheduler
 from tqdm import tqdm
 from explainability import yandex_explain
-from gigachat_explainability import gigachat
+from gigachat_explainability import gigachat_explain
 
 
 # Define the Actor network (same as in training)
@@ -222,7 +222,6 @@ class MAPPOTester:
         return "\n".join(formatted)
 
 
-# Main testing loop
 if __name__ == "__main__":
     n_agents = 12
     env = ResourceScheduler(render_mode='terminal', max_agents=n_agents)
@@ -246,5 +245,4 @@ if __name__ == "__main__":
 
     yandex_explain(logs=llm_logs)
     print('\n', '-------' * 20, '\n')
-    gigachat(logs=llm_logs)
-
+    gigachat_explain(logs=llm_logs)

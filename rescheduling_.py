@@ -5,6 +5,9 @@ from torch.distributions import Categorical
 from scheduler_ import ResourceScheduler
 import itertools
 import logging
+
+from explainability import yandex_explain
+from gigachat_explainability import gigachat_explain
 import matplotlib.pyplot as plt
 
 
@@ -78,6 +81,7 @@ class Client:
 class MultiAgentSystemOperator:
     def __init__(self, list_of_clients) -> None:
         self.clients = list_of_clients
+        self.logs = []  # Добавляем список для логов
 
     def collect_feedback(self):
         for client in self.clients:
@@ -88,16 +92,59 @@ class MultiAgentSystemOperator:
             health_state = (client.urgency, client.completeness, client.complexity)
             client.assigned_agent = agents[health_state]
 
-    def get_actions(self, observations):
-        actions = {}
-        i = 0
-        for client in self.clients:
-            model = client.assigned_agent['model_file']
-            logging.info(f"Observations for {client.name}: {observations[f'agent_{client.name[-1]}']}")
-            actions[f'agent_{i}'] = model.get_action(observations[f'agent_{client.name[-1]}'])
-            i += 1
-        return actions
+    def _log_agent_step(self, agent_id, episode, step, action, info, next_info, env):
+        current_position = info['position']
+        prev_day = (current_position - 1) % 7
+        next_day = (current_position + 1) % 7
 
+        log_entry = {
+            "agent_id": agent_id,
+            "episode": episode,
+            "step": step,
+            "beliefs": {
+                "urgency": info['urgency'],
+                "completeness": info['completeness'],
+                "complexity": info['complexity'],
+                "current_position": current_position,
+                "slot_occupancy_prev": env.observed_state.get(prev_day, 0),
+                "slot_occupancy_current": env.observed_state.get(current_position, 0),
+                "slot_occupancy_next": env.observed_state.get(next_day, 0)
+            },
+            "desires": [
+                "optimize_surgery_day",
+                "reduce_conflicts",
+                "balance_workload"
+            ],
+            "intention": action,
+            "state_after_action": {
+                "new_position": next_info['position'],
+                "scaling_factor": next_info['scaling_factor'],
+                "current_day": next_info['position']
+            }
+        }
+        self.logs.append(log_entry)
+
+    # Модифицируем метод get_actions для сбора логов
+    def get_actions(self, observations, env, episode, step):
+        actions = {}
+        step_logs = []
+
+        for i, client in enumerate(self.clients):
+            agent_id = int(client.name.split('_')[-1])
+            pre_info = env.agents_data[f'agent_{agent_id}']
+
+            model = client.assigned_agent['model_file']
+            action = model.get_action(observations[f'agent_{agent_id}'])
+            actions[f'agent_{i}'] = action
+
+            step_logs.append({
+                'agent_id': agent_id,
+                'pre_info': pre_info,
+                'action': action
+            })
+
+        # Возвращаем actions и логи для последующей обработки
+        return actions, step_logs
 
 # def plot_histogram(data, episode_num):
 #     days = list(data.keys())
@@ -148,6 +195,27 @@ def calculate_scaling_factor_positions(observed_states):
     return average_position_per_scaling_factor
 
 
+def format_logs_for_llm(logs, env):
+    formatted = []
+    for log in logs:
+        formatted.append(
+            f"Агент {log['agent_id']} [Эпизод {log['episode']} Шаг {log['step']}]:\n"
+            f"Убеждения:\n"
+            f"- Срочность: {log['beliefs']['urgency']} | "
+            f"Полнота информации: {log['beliefs']['completeness']} | "
+            f"Сложность: {log['beliefs']['complexity']}\n"
+            f"- Позиция: {log['beliefs']['current_position']} | "
+            f"Слоты: Предыдущий({log['beliefs']['slot_occupancy_prev']}) "
+            f"Текущий({log['beliefs']['slot_occupancy_current']}) "
+            f"Следующий({log['beliefs']['slot_occupancy_next']})\n"
+            f"Намерения: Действие {log['intention']} ({env.agent_action_mapping_text[log['intention']]})\n"
+            f"Результат: Новая позиция {log['state_after_action']['new_position']} | "
+            f"Коэфф. масштабирования: {log['state_after_action']['scaling_factor']} | "
+            f"День: {log['state_after_action']['current_day']}\n"
+        )
+    return "\n".join(formatted)
+
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s - %(levelname)s - %(message)s',
@@ -168,7 +236,6 @@ if __name__ == '__main__':
         except ValueError:
             print("Invalid input. Please enter a valid integer for the number of patients.")
 
-    # Input for patient attributes
     patients = []
     for i in range(num_patients):
         while True:
@@ -240,7 +307,6 @@ if __name__ == '__main__':
             except ValueError:
                 print("Invalid input. Please enter valid integers for the minimum and maximum target values.")
 
-    # Input for initial positions
     initial_positions = {}
     for i in range(num_patients):
         while True:
@@ -275,14 +341,31 @@ if __name__ == '__main__':
             }
         )
 
+        episode_logs = []
+        step = 0
+
         logger.info(f"Episode {e} - {env.render()}")
 
         episode_observed_states = []
 
         while True:
-            actions = manager.get_actions(observations=obs)
+            actions, step_logs = manager.get_actions(observations=obs, env=env, episode=e, step=step)
             logger.debug(f"Actions: {actions}")
-            obs, _, dones, truncations, _ = env.step(actions)
+            next_obs, _, dones, truncations, next_info = env.step(actions)
+
+            for log in step_logs:
+                manager._log_agent_step(
+                    agent_id=log['agent_id'],
+                    episode=e,
+                    step=step,
+                    action=log['action'],
+                    info=log['pre_info'],
+                    next_info=next_info[f'agent_{log["agent_id"]}'],
+                    env=env
+                )
+
+            step += 1
+            obs = next_obs
 
             logger.info(f"Episode {e} - {env.render()}")
 
@@ -290,7 +373,6 @@ if __name__ == '__main__':
                 rendered_data = env.render()
                 episode_observed_states.append(env.observed_state)
 
-                # Собираем данные о позициях агентов для текущего эпизода
                 current_episode_agent_positions = {}
                 for agent_name in env.agents:
                     position = env.agents_data[agent_name]['position']
@@ -298,7 +380,7 @@ if __name__ == '__main__':
                     if position not in current_episode_agent_positions:
                         current_episode_agent_positions[position] = []
                     current_episode_agent_positions[position].append(f"{agent_name} scaling factor: {scaling_factor}")
-                last_episode_agent_positions = current_episode_agent_positions  # Сохраняем последний эпизод
+                last_episode_agent_positions = current_episode_agent_positions
 
                 break
 
@@ -325,3 +407,9 @@ if __name__ == '__main__':
     for day in sorted(last_episode_agent_positions.keys()):
         agents = last_episode_agent_positions[day]
         print(f"Day {day}: {', '.join(agents)}")
+
+    llm_logs = format_logs_for_llm(manager.logs, env)
+    print(llm_logs)
+
+    yandex_explain(logs=llm_logs)
+    gigachat_explain(logs=llm_logs)

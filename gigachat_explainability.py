@@ -5,7 +5,7 @@ import os
 load_dotenv()
 
 
-def gigachat(logs):
+def gigachat_explain(logs):
     with GigaChat(credentials=os.getenv("SBER"), verify_ssl_certs=False, model='GigaChat') as giga:
         prompt = f"""
         Ты — интеллектуальная система для планирования грузоперевозок на складе. 
