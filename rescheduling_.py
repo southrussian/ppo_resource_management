@@ -8,7 +8,6 @@ import logging
 
 from explainability import yandex_explain
 from gigachat_explainability import gigachat_explain
-import matplotlib.pyplot as plt
 
 
 class Actor(nn.Module):

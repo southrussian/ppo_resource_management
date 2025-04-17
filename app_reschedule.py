@@ -4,7 +4,7 @@ from scheduler_ import ResourceScheduler
 import itertools
 from explainability import yandex_explain
 from gigachat_explainability import gigachat_explain
-from rescheduling_ import (MAPPOAgent, MultiAgentSystemOperator, Client, Actor, format_logs_for_llm,
+from rescheduling_ import (MAPPOAgent, MultiAgentSystemOperator, Client, format_logs_for_llm,
                            calculate_deviation, calculate_scaling_factor_positions)
 
 app = Flask(__name__)

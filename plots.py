@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-data = pd.read_csv('csv-2.csv')
+data = pd.read_csv('csv/csv-2.csv')
 
 x = data['Step']
 y = data['Value']
