@@ -2,12 +2,12 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.distributions import Categorical
-from scheduler_ import ResourceScheduler
+from scheduler import ResourceScheduler
 import itertools
 import logging
 
-from explainability import yandex_explain
-from gigachat_explainability import gigachat_explain
+from service.yandex_explainability import yandex_explain
+from service.gigachat_explainability import gigachat_explain
 
 
 class Actor(nn.Module):
@@ -88,8 +88,8 @@ class MultiAgentSystemOperator:
 
     def assign_agents(self, agents):
         for client in self.clients:
-            health_state = (client.urgency, client.completeness, client.complexity)
-            client.assigned_agent = agents[health_state]
+            cargo_state = (client.urgency, client.completeness, client.complexity)
+            client.assigned_agent = agents[cargo_state]
 
     def _log_agent_step(self, agent_id, episode, step, action, info, next_info, env):
         current_position = info['position']
@@ -165,7 +165,7 @@ def calculate_deviation(observed_states, target_state):
     bootstrap_average_distribution = {i: sum(episode[i] for episode in observed_states) / num_episodes for i in
                                       range(7)}
 
-    bootstrap_average_percentage_deviations = {i: np.nan for i in range(7)}  # Use np.nan as a default value
+    bootstrap_average_percentage_deviations = {k: np.nan for k in range(7)}  # Use np.nan as a default value
     mean_target_state = {day: (target_state[day]['min'] + target_state[day]['max']) / 2 for day in target_state}
 
     for key, value in bootstrap_average_distribution.items():
@@ -238,7 +238,7 @@ if __name__ == '__main__':
     for i in range(num_clients):
         while True:
             try:
-                urgency = int(input(f"Enter urgency for client {i+1} (1-3): "))
+                urgency = int(input(f"Enter urgency for client {i + 1} (1-3): "))
                 if 1 <= urgency <= 3:
                     break
                 else:
@@ -248,7 +248,7 @@ if __name__ == '__main__':
 
         while True:
             try:
-                completeness = int(input(f"Enter completeness for client {i+1} (0-1): "))
+                completeness = int(input(f"Enter completeness for client {i + 1} (0-1): "))
                 if 0 <= completeness <= 1:
                     break
                 else:
@@ -258,7 +258,7 @@ if __name__ == '__main__':
 
         while True:
             try:
-                complexity = int(input(f"Enter complexity for client {i+1} (0-1): "))
+                complexity = int(input(f"Enter complexity for client {i + 1} (0-1): "))
                 if 0 <= complexity <= 1:
                     break
                 else:
@@ -275,17 +275,17 @@ if __name__ == '__main__':
     options = list(itertools.product(urgency_range, completeness_range, complexity_range))
 
     selected_states = np.random.choice(len(options), size=12, replace=False)
-    health_states = [options[i] for i in selected_states]
+    cargo_states = [options[i] for i in selected_states]
 
-    agents = {f'agent_{i}': MAPPOAgent(obs_dim=11, action_dim=3) for i in range(len(health_states))}
+    agents = {f'agent_{i}': MAPPOAgent(obs_dim=11, action_dim=3) for i in range(len(cargo_states))}
 
     for i, agent in enumerate(agents):
         agents[agent].load_model(f'trained_model/actor_{i}.pth')
 
     manager = MultiAgentSystemOperator(list_of_clients=clients)
     manager.assign_agents(
-        {health_state: {'agent_name': agent_name, 'model_file': model_file} for health_state, (agent_name, model_file)
-         in zip(health_states, agents.items())})
+        {cargo_state: {'agent_name': agent_name, 'model_file': model_file} for cargo_state, (agent_name, model_file)
+         in zip(cargo_states, agents.items())})
 
     e = 0
     all_observed_states = []
@@ -309,7 +309,7 @@ if __name__ == '__main__':
     for i in range(num_clients):
         while True:
             try:
-                position = int(input(f"Enter initial position for client {i+1} (0-6): "))
+                position = int(input(f"Enter initial position for client {i + 1} (0-6): "))
                 if 0 <= position <= 6:
                     initial_positions[f'agent_{i}'] = position
                     break

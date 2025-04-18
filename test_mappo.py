@@ -3,10 +3,10 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.distributions import Categorical
-from scheduler_ import ResourceScheduler
+from scheduler import ResourceScheduler
 from tqdm import tqdm
-from explainability import yandex_explain
-from gigachat_explainability import gigachat_explain
+from service.yandex_explainability import yandex_explain
+from service.gigachat_explainability import gigachat_explain
 
 
 class Actor(nn.Module):

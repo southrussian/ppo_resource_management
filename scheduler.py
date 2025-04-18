@@ -168,7 +168,6 @@ class ResourceScheduler(ParallelEnv):
                                                                                in self.agents}
         for agent in self.agents:
             self.agents_data[agent]['position'] = self.rng.integers(0, 7, 1).item()
-        # self.proficiency_level = options['proficiency_level'] if options is not None else None
         for agent in self.agents:
             self.agents_data[agent]['scaling_factor'] = max(1, (self.agents_data[agent]['complexity'] +
                                                                 (1 - self.agents_data[agent]['completeness'])) *

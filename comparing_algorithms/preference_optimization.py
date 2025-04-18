@@ -1,7 +1,7 @@
 import itertools
 import numpy as np
 import torch
-from scheduler_ import ResourceScheduler
+from scheduler import ResourceScheduler
 from mappo import MAPPOTrainer, MAPPOTester
 
 

@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.distributions import Categorical
-from scheduler_ import ResourceScheduler
+from scheduler import ResourceScheduler
 import itertools
 import logging
 import matplotlib.pyplot as plt

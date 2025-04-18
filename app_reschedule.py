@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request, jsonify
 import numpy as np
-from scheduler_ import ResourceScheduler
+from scheduler import ResourceScheduler
 import itertools
-from explainability import yandex_explain
-from gigachat_explainability import gigachat_explain
-from rescheduling_ import (MAPPOAgent, MultiAgentSystemOperator, Client, format_logs_for_llm,
-                           calculate_deviation, calculate_scaling_factor_positions)
+from service.yandex_explainability import yandex_explain
+from service.gigachat_explainability import gigachat_explain
+from rescheduling import (MAPPOAgent, MultiAgentSystemOperator, Client, format_logs_for_llm,
+                          calculate_deviation, calculate_scaling_factor_positions)
 
 app = Flask(__name__)
 
@@ -23,6 +23,7 @@ def index():
 def run_simulation():
     try:
         data = request.json
+        # agent_id = data.get('agent_id')
 
         # Обработка клиентов
         clients = []
@@ -53,16 +54,16 @@ def run_simulation():
         complexity_range = range(0, 2)
         options = list(itertools.product(urgency_range, completeness_range, complexity_range))
         selected_states = np.random.choice(len(options), size=12, replace=False)
-        health_states = [options[i] for i in selected_states]
+        cargo_states = [options[i] for i in selected_states]
 
-        agents = {f'agent_{i}': MAPPOAgent(obs_dim=11, action_dim=3) for i in range(len(health_states))}
+        agents = {f'agent_{i}': MAPPOAgent(obs_dim=11, action_dim=3) for i in range(len(cargo_states))}
         for i, agent in enumerate(agents):
             agents[agent].load_model(f'trained_model/actor_{i}.pth')
 
         manager = MultiAgentSystemOperator(list_of_clients=clients)
         manager.assign_agents({
-            health_state: {'agent_name': agent_name, 'model_file': model_file}
-            for health_state, (agent_name, model_file) in zip(health_states, agents.items())
+            cargo_state: {'agent_name': agent_name, 'model_file': model_file}
+            for cargo_state, (agent_name, model_file) in zip(cargo_states, agents.items())
         })
 
         # Запуск симуляции
@@ -147,6 +148,7 @@ def run_simulation():
         llm_logs = format_logs_for_llm(manager.logs, env)
 
         # Получение объяснений от моделей
+
         yandex_explanation = filter_string(yandex_explain(logs=llm_logs))
         gigachat_explanation = filter_string(gigachat_explain(logs=llm_logs))
 
