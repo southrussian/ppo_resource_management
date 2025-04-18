@@ -2,13 +2,11 @@ from __future__ import annotations
 from yandex_cloud_ml_sdk import YCloudML
 from dotenv import load_dotenv
 import os
-from grpc import StatusCode
-from grpc.aio import AioRpcError
 
 load_dotenv()
 
 
-def yandex_explain(logs) -> str:
+def yandex_explain(logs, agent_id) -> str:
     sdk = YCloudML(
         folder_id=os.getenv('FOLDER_ID'),
         auth=os.getenv('AUTH'),
@@ -38,7 +36,7 @@ def yandex_explain(logs) -> str:
             "role": "system",
             "text": f"""
                 Инструкции:
-                1. Восстанови модель BDI первого агента на основе данных.
+                1. Восстанови модель BDI {agent_id + 1}-го агента на основе данных.
                 2. Обобщи поведение агента: 
                    - Определи, были ли действия пассивными или активными.
                    - Проанализируй динамику поведения за весь период.

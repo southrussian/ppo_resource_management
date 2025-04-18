@@ -194,24 +194,25 @@ def calculate_scaling_factor_positions(observed_states):
     return average_position_per_scaling_factor
 
 
-def format_logs_for_llm(logs, env):
+def format_logs_for_llm(logs, env, agent_id):
     formatted = []
     for log in logs:
-        formatted.append(
-            f"Агент {log['agent_id']} [Эпизод {log['episode']} Шаг {log['step']}]:\n"
-            f"Убеждения:\n"
-            f"- Срочность: {log['beliefs']['urgency']} | "
-            f"Полнота информации: {log['beliefs']['completeness']} | "
-            f"Сложность: {log['beliefs']['complexity']}\n"
-            f"- Позиция: {log['beliefs']['current_position']} | "
-            f"Слоты: Предыдущий({log['beliefs']['slot_occupancy_prev']}) "
-            f"Текущий({log['beliefs']['slot_occupancy_current']}) "
-            f"Следующий({log['beliefs']['slot_occupancy_next']})\n"
-            f"Намерения: Действие {log['intention']} ({env.agent_action_mapping_text[log['intention']]})\n"
-            f"Результат: Новая позиция {log['state_after_action']['new_position']} | "
-            f"Коэфф. масштабирования: {log['state_after_action']['scaling_factor']} | "
-            f"День: {log['state_after_action']['current_day']}\n"
-        )
+        if log['agent_id'] == agent_id:
+            formatted.append(
+                f"Агент {log['agent_id']} [Эпизод {log['episode']} Шаг {log['step']}]:\n"
+                f"Убеждения:\n"
+                f"- Срочность: {log['beliefs']['urgency']} | "
+                f"Полнота информации: {log['beliefs']['completeness']} | "
+                f"Сложность: {log['beliefs']['complexity']}\n"
+                f"- Позиция: {log['beliefs']['current_position']} | "
+                f"Слоты: Предыдущий({log['beliefs']['slot_occupancy_prev']}) "
+                f"Текущий({log['beliefs']['slot_occupancy_current']}) "
+                f"Следующий({log['beliefs']['slot_occupancy_next']})\n"
+                f"Намерения: Действие {log['intention']} ({env.agent_action_mapping_text[log['intention']]})\n"
+                f"Результат: Новая позиция {log['state_after_action']['new_position']} | "
+                f"Коэфф. масштабирования: {log['state_after_action']['scaling_factor']} | "
+                f"День: {log['state_after_action']['current_day']}\n"
+            )
     return "\n".join(formatted)
 
 
@@ -406,8 +407,8 @@ if __name__ == '__main__':
         agents = last_episode_agent_positions[day]
         print(f"Day {day}: {', '.join(agents)}")
 
-    llm_logs = format_logs_for_llm(manager.logs, env)
+    llm_logs = format_logs_for_llm(manager.logs, env, agent_id=0)
     print(llm_logs)
 
-    yandex_explain(logs=llm_logs)
-    gigachat_explain(logs=llm_logs)
+    yandex_explain(logs=llm_logs, agent_id=0)
+    gigachat_explain(logs=llm_logs, agent_id=0)

@@ -5,7 +5,7 @@ import os
 load_dotenv()
 
 
-def gigachat_explain(logs) -> str:
+def gigachat_explain(logs, agent_id) -> str:
     with GigaChat(credentials=os.getenv("SBER"), verify_ssl_certs=False, model='GigaChat') as giga:
         prompt = f"""
         Ты — интеллектуальная система для планирования грузоперевозок на складе. 
@@ -20,7 +20,7 @@ def gigachat_explain(logs) -> str:
         Данные из логов: {logs}
     
         Инструкции:
-        1. Восстанови модель BDI первого агента на основе данных.
+        1. Восстанови модель BDI {agent_id + 1}-го агента на основе данных.
         2. Обобщи поведение агента: 
            - Определи, были ли действия пассивными или активными.
            - Проанализируй динамику поведения за весь период.

@@ -23,7 +23,7 @@ def index():
 def run_simulation():
     try:
         data = request.json
-        # agent_id = data.get('agent_id')
+        agent_id = int(data.get('agent_id'))
 
         # Обработка клиентов
         clients = []
@@ -145,12 +145,12 @@ def run_simulation():
         }
 
         # Форматирование логов для LLM
-        llm_logs = format_logs_for_llm(manager.logs, env)
+        llm_logs = format_logs_for_llm(logs=manager.logs, env=env, agent_id=agent_id)
 
         # Получение объяснений от моделей
 
-        yandex_explanation = filter_string(yandex_explain(logs=llm_logs))
-        gigachat_explanation = filter_string(gigachat_explain(logs=llm_logs))
+        yandex_explanation = filter_string(yandex_explain(logs=llm_logs, agent_id=agent_id))
+        gigachat_explanation = filter_string(gigachat_explain(logs=llm_logs, agent_id=agent_id))
 
         # Формирование результата
         result = {
