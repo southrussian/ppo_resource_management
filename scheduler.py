@@ -89,12 +89,11 @@ class ResourceScheduler(ParallelEnv):
 
                 if agents_in_day:
                     agent_y = y + 50
-                    max_agents_per_column = 3  # Maximum agents to show vertically before scrolling
+                    max_agents_per_column = 3
                     agent_height = 25
 
                     for i, agent in enumerate(agents_in_day):
                         if i >= max_agents_per_column:
-                            # Show indicator that there are more agents
                             more_text = agent_font.render(f"+{len(agents_in_day) - max_agents_per_column}", True,
                                                           TEXT_COLOR)
                             self.win.blit(more_text, (x + day_width // 2 - more_text.get_width() // 2, agent_y))
@@ -130,7 +129,6 @@ class ResourceScheduler(ParallelEnv):
 
             pygame.display.flip()
 
-            # Handle events to prevent freezing
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()

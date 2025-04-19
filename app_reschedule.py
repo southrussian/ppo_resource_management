@@ -25,7 +25,6 @@ def run_simulation():
         data = request.json
         agent_id = int(data.get('agent_id'))
 
-        # Обработка клиентов
         clients = []
         for client_data in data['clients']:
             clients.append(Client(
@@ -35,7 +34,6 @@ def run_simulation():
                 complexity=int(client_data['complexity'])
             ))
 
-        # Обработка целевых состояний
         target_state = {}
         for day, day_data in enumerate(data['targetState']):
             target_state[day] = {
@@ -43,12 +41,10 @@ def run_simulation():
                 'max': int(day_data['max'])
             }
 
-        # Обработка начальных позиций
         initial_positions = {}
         for i in range(len(clients)):
             initial_positions[f'agent_{i}'] = int(data['initialPositions'][i])
 
-        # Инициализация агентов
         urgency_range = range(1, 4)
         completeness_range = range(0, 2)
         complexity_range = range(0, 2)
@@ -66,7 +62,6 @@ def run_simulation():
             for cargo_state, (agent_name, model_file) in zip(cargo_states, agents.items())
         })
 
-        # Запуск симуляции
         all_observed_states = []
         last_episode_agent_positions = None
         e = 0
@@ -130,7 +125,6 @@ def run_simulation():
             manager.collect_feedback()
             e += 1
 
-        # Расчет результатов
         mean_deviation, std_deviation = calculate_deviation(all_observed_states, target_state)
         avg_bids_per_day = {
             i: sum(state[i] for state in all_observed_states) / len(all_observed_states)
@@ -152,7 +146,6 @@ def run_simulation():
         yandex_explanation = filter_string(yandex_explain(logs=llm_logs, agent_id=agent_id))
         gigachat_explanation = filter_string(gigachat_explain(logs=llm_logs, agent_id=agent_id))
 
-        # Формирование результата
         result = {
             'stats': {
                 'avgBidsPerDay': avg_bids_per_day,

@@ -5,13 +5,30 @@ from torch.distributions import Categorical
 from scheduler import ResourceScheduler
 import itertools
 import logging
+import matplotlib.pyplot as plt
 
 from service.yandex_explainability import yandex_explain
 from service.gigachat_explainability import gigachat_explain
 
 
 class Actor(nn.Module):
+    """
+       A neural network model representing the Actor in a reinforcement learning setup.
+
+       This class defines the architecture of the Actor model, which is used to determine
+       the action probabilities given the observation inputs.
+
+       Attributes:
+           network (nn.Sequential): The neural network architecture consisting of linear layers and ReLU activations.
+    """
     def __init__(self, obs_dim, action_dim):
+        """
+                Initializes the Actor model with specified observation and action dimensions.
+
+                Args:
+                    obs_dim (int): The dimension of the observation space.
+                    action_dim (int): The dimension of the action space.
+        """
         super(Actor, self).__init__()
         self.network = nn.Sequential(
             nn.Linear(obs_dim, 64),
@@ -23,18 +40,57 @@ class Actor(nn.Module):
         )
 
     def forward(self, obs):
+        """
+                Performs a forward pass through the network to compute action probabilities.
+
+                Args:
+                    obs (torch.Tensor): The input observation tensor.
+
+                Returns:
+                    torch.Tensor: The output tensor representing action probabilities.
+        """
         return self.network(obs)
 
 
 class MAPPOAgent:
+    """
+        An agent that uses the Multi-Agent Proximal Policy Optimization (MAPPO) algorithm.
+
+        This class manages the Actor model, loading its state, and selecting actions based on observations.
+
+        Attributes:
+            actor (Actor): The Actor model used to select actions.
+    """
     def __init__(self, obs_dim, action_dim):
+        """
+            Initializes the MAPPOAgent with specified observation and action dimensions.
+
+            Args:
+                obs_dim (int): The dimension of the observation space.
+                action_dim (int): The dimension of the action space.
+        """
         self.actor = Actor(obs_dim, action_dim)
 
     def load_model(self, path):
+        """
+            Loads the Actor model's state from a file.
+
+            Args:
+                path (str): The file path to load the model state from.
+        """
         self.actor.load_state_dict(torch.load(path))
         self.actor.eval()
 
     def get_action(self, obs):
+        """
+            Selects an action based on the given observation using the Actor model.
+
+            Args:
+                obs (np.ndarray): The observation array.
+
+            Returns:
+                int: The selected action as an integer.
+        """
         obs = torch.FloatTensor(obs)
         with torch.no_grad():
             probs = self.actor(obs)
@@ -45,7 +101,31 @@ class MAPPOAgent:
 
 
 class Client:
+    """
+        Represents a client in the scheduling system.
+
+        This class holds information about the client's attributes and manages their satisfaction state.
+
+        Attributes:
+            name (str): The name of the client.
+            urgency (int): The urgency level of the client's request.
+            completeness (int): The completeness level of the client's information.
+            complexity (int): The complexity level of the client's task.
+            acceptance_rate (float): The client's acceptance rate.
+            _satisfied (bool): Whether the client is satisfied.
+            _assigned_agent (MAPPOAgent): The agent assigned to the client.
+    """
+
     def __init__(self, name, urgency, completeness, complexity) -> None:
+        """
+            Initializes the Client with specified attributes.
+
+            Args:
+                name (str): The name of the client.
+                urgency (int): The urgency level of the client's request.
+                completeness (int): The completeness level of the client's information.
+                complexity (int): The complexity level of the client's task.
+        """
         self.name = name
         self.urgency = urgency
         self.completeness = completeness
@@ -56,21 +136,51 @@ class Client:
 
     @property
     def satisfied(self):
+        """
+            Gets the satisfaction state of the client.
+
+            Returns:
+                bool: The satisfaction state.
+        """
         return self._satisfied
 
     @satisfied.setter
     def satisfied(self, value):
+        """
+            Sets the satisfaction state of the client.
+
+            Args:
+                value (bool): The satisfaction state to set.
+        """
         self._satisfied = value
 
     @property
     def assigned_agent(self):
+        """
+            Gets the agent assigned to the client.
+
+            Returns:
+                MAPPOAgent: The assigned agent.
+        """
         return self._assigned_agent
 
     @assigned_agent.setter
     def assigned_agent(self, value):
+        """
+            Sets the agent assigned to the client.
+
+            Args:
+                value (MAPPOAgent): The agent to assign.
+        """
         self._assigned_agent = value
 
     def give_feedback(self):
+        """
+            Simulates the client giving feedback.
+
+            Returns:
+                bool: A random boolean representing the feedback.
+        """
         answer = np.random.choice([True, False], p=[self.acceptance_rate, 1 - self.acceptance_rate])
         if answer:
             self.acceptance_rate = 1.0
@@ -78,20 +188,65 @@ class Client:
 
 
 class MultiAgentSystemOperator:
+    """
+    Manages a multi-agent system, handling client feedback, agent assignment, and logging.
+
+    This class is responsible for collecting feedback from clients, assigning agents to clients based on their cargo state,
+    and logging agent steps during the simulation.
+
+    Attributes:
+        clients (list): A list of Client objects representing the clients in the system.
+        logs (list): A list to store logs of agent steps and actions.
+    """
+
     def __init__(self, list_of_clients) -> None:
+        """
+        Initializes the MultiAgentSystemOperator with a list of clients.
+
+        Args:
+            list_of_clients (list): A list of Client objects.
+        """
         self.clients = list_of_clients
-        self.logs = []  # Добавляем список для логов
+        self.logs = []
 
     def collect_feedback(self):
+        """
+        Collects feedback from all clients and updates their satisfaction status.
+
+        This method iterates over each client and sets their satisfaction status based on the feedback they provide.
+        """
         for client in self.clients:
             client.satisfied = client.give_feedback()
 
     def assign_agents(self, agents):
+        """
+        Assigns agents to clients based on their cargo state.
+
+        Args:
+            agents (dict): A dictionary mapping cargo states to agents.
+
+        This method iterates over each client and assigns an agent based on the client's urgency, completeness,
+        and complexity attributes.
+        """
         for client in self.clients:
             cargo_state = (client.urgency, client.completeness, client.complexity)
             client.assigned_agent = agents[cargo_state]
 
     def _log_agent_step(self, agent_id, episode, step, action, info, next_info, env):
+        """
+        Logs the step taken by an agent, including beliefs, desires, intentions, and state after action.
+
+        Args:
+            agent_id (int): The ID of the agent.
+            episode (int): The current episode number.
+            step (int): The current step number within the episode.
+            action (int): The action taken by the agent.
+            info (dict): Information about the agent's state before the action.
+            next_info (dict): Information about the agent's state after the action.
+            env: The environment in which the agent is operating.
+
+        This method constructs a log entry with detailed information about the agent's step and appends it to the logs list.
+        """
         current_position = info['position']
         prev_day = (current_position - 1) % 7
         next_day = (current_position + 1) % 7
@@ -123,8 +278,22 @@ class MultiAgentSystemOperator:
         }
         self.logs.append(log_entry)
 
-    # Модифицируем метод get_actions для сбора логов
     def get_actions(self, observations, env, episode, step):
+        """
+        Gets actions for all agents based on the current observations and logs the steps.
+
+        Args:
+            observations (dict): Observations for each agent.
+            env: The environment in which the agents are operating.
+            episode (int): The current episode number.
+            step (int): The current step number within the episode.
+
+        Returns:
+            tuple: A tuple containing a dictionary of actions and a list of step logs.
+
+        This method iterates over each client, retrieves the action from the assigned agent's model,
+        and logs the step information.
+        """
         actions = {}
         step_logs = []
 
@@ -142,48 +311,84 @@ class MultiAgentSystemOperator:
                 'action': action
             })
 
-        # Возвращаем actions и логи для последующей обработки
         return actions, step_logs
 
-# def plot_histogram(data, episode_num):
-#     days = list(data.keys())
-#     values = list(data.values())
-#
-#     plt.figure(figsize=(10, 6))
-#     plt.bar(days, values, color='skyblue')
-#     plt.xlabel('Week Days')
-#     plt.ylabel('Values of occupied slots')
-#     plt.title(f'Histogram of slots distribution of episode: {episode_num+1}')
-#     plt.xticks(rotation=45)
-#     plt.tight_layout()
-#     plt.savefig(f'histogram_episode_{episode_num+1}.png')
-#     plt.show()
+
+def plot_histogram(data, episode_num):
+    """
+    Plots and saves a histogram of the distribution of occupied slots for a given episode.
+
+    This function creates a bar chart representing the distribution of occupied slots over the days of the week
+    for a specific episode and saves the plot as an image file.
+
+    Args:
+        data (dict): A dictionary where keys are days of the week and values are the number of occupied slots.
+        episode_num (int): The episode number for which the histogram is being plotted.
+
+    Returns:
+        None
+    """
+    days = list(data.keys())
+    values = list(data.values())
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(days, values, color='skyblue')
+    plt.xlabel('Week Days')
+    plt.ylabel('Values of occupied slots')
+    plt.title(f'Histogram of slots distribution of episode: {episode_num+1}')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.savefig(f'histogram_episode_{episode_num+1}.png')
+    plt.show()
 
 
 def calculate_deviation(observed_states, target_state):
-    num_episodes = len(observed_states)
-    bootstrap_average_distribution = {i: sum(episode[i] for episode in observed_states) / num_episodes for i in
-                                      range(7)}
+    """
+    Calculates the average and standard deviation of percentage deviations between observed and target states.
 
-    bootstrap_average_percentage_deviations = {k: np.nan for k in range(7)}  # Use np.nan as a default value
+    This function computes the mean and standard deviation of the percentage deviations of the observed states
+    from the target state across all episodes.
+
+    Args:
+        observed_states (list): A list of dictionaries representing the observed states for each episode.
+        target_state (dict): A dictionary representing the target state with 'min' and 'max' values for each day.
+
+    Returns:
+        tuple: A tuple containing the average bootstrap deviation and the standard deviation of the bootstrap deviations.
+    """
+    num_episodes = len(observed_states)
+    bootstrap_average_distribution = \
+        {i: sum(episode[i] for episode in observed_states) / num_episodes for i in range(7)}
+
+    bootstrap_average_percentage_deviations = {k: np.nan for k in range(7)}
     mean_target_state = {day: (target_state[day]['min'] + target_state[day]['max']) / 2 for day in target_state}
 
     for key, value in bootstrap_average_distribution.items():
         target_value = mean_target_state[key]
-        if target_value != 0:  # Avoid division by zero
+        if target_value != 0:
             bootstrap_average_percentage_deviations[key] = np.abs(target_value - value) / target_value
         else:
             bootstrap_average_percentage_deviations[key] = np.nan
 
-    average_bootstrap_deviation = np.nanmean(
-        list(bootstrap_average_percentage_deviations.values()))
-    std_bootstrap_deviation = np.nanstd(
-        list(bootstrap_average_percentage_deviations.values()))
+    average_bootstrap_deviation = np.nanmean(list(bootstrap_average_percentage_deviations.values()))
+    std_bootstrap_deviation = np.nanstd(list(bootstrap_average_percentage_deviations.values()))
 
     return average_bootstrap_deviation, std_bootstrap_deviation
 
 
 def calculate_scaling_factor_positions(observed_states):
+    """
+    Calculates the average position per scaling factor for each day of the week.
+
+    This function computes the average position of agents for each day of the week based on the observed states
+    across all episodes.
+
+    Args:
+        observed_states (list): A list of dictionaries representing the observed states for each episode.
+
+    Returns:
+        dict: A dictionary where keys are days of the week and values are the average positions per scaling factor.
+    """
     scaling_factor_positions = {i: [] for i in range(7)}
 
     for state in observed_states:
@@ -195,6 +400,25 @@ def calculate_scaling_factor_positions(observed_states):
 
 
 def format_logs_for_llm(logs, env, agent_id):
+    """
+    Formats logs for a specific agent to be used with a Large Language Model (LLM).
+
+    This function processes the logs and formats them into a human-readable string that describes the agent's beliefs,
+    intentions, and the results of its actions for each step in an episode. The formatted logs are intended to be used
+    as input for an LLM to provide explanations or insights.
+
+    Args:
+        logs (list): A list of log entries, where each entry is a dictionary containing details about an agent's step.
+        env: The environment in which the agents are operating, containing mappings for agent actions.
+        agent_id (int): The ID of the agent whose logs are to be formatted.
+
+    Returns:
+        str: A formatted string containing the logs for the specified agent, ready to be used with an LLM.
+
+    Notes:
+        - The function filters logs based on the agent_id and formats only those logs that match the specified agent.
+        - The formatted string includes details about the agent's beliefs, intentions, and the state after each action.
+    """
     formatted = []
     for log in logs:
         if log['agent_id'] == agent_id:
