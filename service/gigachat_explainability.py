@@ -5,7 +5,7 @@ import os
 load_dotenv()
 
 
-def gigachat_explain(logs, agent_id) -> str:
+def gigachat_explain(logs: str, agent_id: int) -> str:
     """
     Анализирует логи агента и генерирует объяснение его поведения с использованием модели GigaChat.
 
