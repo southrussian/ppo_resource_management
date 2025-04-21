@@ -242,6 +242,6 @@ if __name__ == "__main__":
     llm_logs = tester.format_logs_for_llm(agent_id=0)
     print(llm_logs)
 
-    yandex_explain(logs=llm_logs)
+    yandex_explain(logs=llm_logs, agent_id=0)
     print('\n', '-------' * 20, '\n')
-    gigachat_explain(logs=llm_logs)
+    gigachat_explain(logs=llm_logs, agent_id=0)
