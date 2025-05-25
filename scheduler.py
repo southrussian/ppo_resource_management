@@ -232,19 +232,15 @@ class ResourceScheduler(ParallelEnv):
         rv = levy_stable(self.agents_data[agent]['alpha'], 0.0, loc=self.agents_data[agent]['position'], scale=1.0)
         weighted_discrepancy_sum = np.sum([rv.pdf(day) * masked_discrepancy[day] for day in masked_discrepancy])
 
-        # Add a global discrepancy term
         global_discrepancy = sum(discrepancy.values())
 
-        # Combine local and global rewards
         reward = -(weighted_discrepancy_sum + 0.05 * global_discrepancy) * self.agents_data[agent]['base_reward'] / \
                  self.agents_data[agent]['scaling_factor']
 
-        # Add a small positive reward for being in an underutilized day
         current_day = self.agents_data[agent]['position']
         if self.observed_state[current_day] < self.target_state[current_day]:
             reward += 0.5 * self.agents_data[agent]['base_reward']  # Increased reward
 
-        # Add a small negative reward for being in an overutilized day
         if self.observed_state[current_day] > self.target_state[current_day]:
             reward -= 0.1 * self.agents_data[agent]['base_reward']  # Reduced penalty
 

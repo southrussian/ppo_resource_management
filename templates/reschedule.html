@@ -347,7 +347,7 @@
                 updateChart('avg-bids-chart',
                     Object.keys(result.stats.avgBidsPerDay).map(d => `Day ${parseInt(d) + 1}`),
                     Object.values(result.stats.avgBidsPerDay),
-                    'Число заявок на день во время симуляции (не отражает окончательное распределение)');
+                    'Среднее число заявок в симуляции (не окончательное распределение)');
 
                 // Update explanations
                 if (result.explanations) {

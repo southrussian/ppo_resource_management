@@ -423,6 +423,7 @@ def format_logs_for_llm(logs, env, agent_id):
     for log in logs:
         if log['agent_id'] == agent_id:
             formatted.append(
+
                 f"Агент {log['agent_id']} [Эпизод {log['episode']} Шаг {log['step']}]:\n"
                 f"Убеждения:\n"
                 f"- Срочность: {log['beliefs']['urgency']} | "
@@ -436,6 +437,7 @@ def format_logs_for_llm(logs, env, agent_id):
                 f"Результат: Новая позиция {log['state_after_action']['new_position']} | "
                 f"Коэфф. масштабирования: {log['state_after_action']['scaling_factor']} | "
                 f"День: {log['state_after_action']['current_day']}\n"
+
             )
     return "\n".join(formatted)
 

@@ -14,8 +14,6 @@ final_states = [
 ]
 
 
-
-
 def transform_state(state):
     return {key: (value / 100) * 12 for key, value in state.items()}
 
