@@ -1,89 +1,116 @@
-# RL Task Scheduler
+Here is the translated and refined version of your README.md:
 
-This project implements a multi-agent reinforcement learning system for optimizing surgery scheduling in a hospital environment. It uses the Multi-Agent Deep Deterministic Policy Gradient (MADDPG) algorithm to train agents to make efficient scheduling decisions.
+# Intelligent Explainable Scheduling Automation System
 
-## Installation and run
-There is a fast way to install all dependencies and run the experiment using bash script `run.sh`. First you need to open a project folder in the Visual Studio Code and call the terminal. Write this line in a bash console:
+## Description
 
+Imagine this scenario: You manage a transportation company with hundreds of clients, each with different preferences and needs. You are obligated to serve each of them by transporting their cargo, but your company's capabilities have limitations. Under these conditions, there is a need to allocate clients, considering the importance of some over others, and without exceeding the company's service capacity.
+
+This project aims to solve this problem by automating the distribution of competing clients for service in critical areas and providing explanations for the decisions made by the system after allocation.
+
+## Technical Features
+
+Since the identified problem is NP-hard, the most accurate numerical solution can be achieved using Multi-Agent Reinforcement Learning (MARL) methods. By training a pool of reference intelligent agents on the most beneficial policy for them and the fairest for the company's capacities, simulations can be created for various client distribution scenarios.
+
+The system utilizes the Multi-Agent Proximal Policy Optimization (MAPPO) algorithm, an extension of the Proximal Policy Optimization (PPO) algorithm designed for multi-agent environments. MAPPO allows multiple agents to learn policies simultaneously, making it suitable for environments where agents must cooperate and compete.
+
+### Key Components:
+
+- **Agents**: Each agent represents a customer or a service provider. Agents make decisions based on their policies, which are updated during training.
+- **Environment**: The environment simulates the customer service scheduling scenario, including resource constraints and customer demands.
+- **Policies**: The policies are neural networks that map states to actions. They are trained to maximize the cumulative reward.
+- **Rewards**: The reward function is designed to incentivize efficient scheduling and fair resource allocation.
+
+### Scheduler Module
+
+The `scheduler.py` module, based on the PettingZoo library principles of environment creation, is the core of the system, responsible for:
+
+- **Initial Scheduling**: Creating an initial schedule based on current demands and resources.
+- **Dynamic Adjustments**: Making real-time adjustments to the schedule as new information becomes available.
+- **Communication**: Facilitating communication between agents to coordinate their actions.
+
+### Training the Model
+
+The `train_mappo.py` script handles the training of the MAPPO model. Key steps include:
+
+- **Initialization**: Setting up the environment, agents, and policies.
+- **Training Loop**: Running episodes where agents interact with the environment, collect experiences, and update their policies.
+- **Evaluation**: Periodically evaluating the performance of the agents to monitor progress.
+
+### Testing the Model
+
+The `test_mappo.py` script includes unit tests and integration tests to verify the correctness and robustness of the MAPPO model. Tests cover:
+
+- **Agent Behavior**: Ensuring that agents make reasonable decisions.
+- **Environment Dynamics**: Verifying that the environment behaves as expected.
+- **Policy Updates**: Checking that policy updates lead to improved performance.
+
+### Rescheduling Logic
+
+The `rescheduling.py` and its Flask modification `app_rescheduling.py` modules contain the logic for adjusting schedules in response to changes in customer demands or resource availability. It includes:
+
+- **Conflict Detection**: Identifying conflicts in the current schedule.
+- **Resolution Strategies**: Implementing strategies to resolve conflicts, such as reallocating resources or adjusting service times.
+- **Optimization**: Ensuring that the rescheduled plan is optimal with respect to the defined objectives.
+
+## Results
+
+The following code provides these results:
+
+![loss_actor](assets/loss_actor.svg)
+![loss_critic](assets/loss_critic.svg)
+![avg_rev](assets/avg_reward.svg)
+
+As you can see, the loss value decreases as the agents learn, while the average reward per episode increases. Thus, the effectiveness of the system has been experimentally proven.
+
+The `human` render mode has its own interface:
+
+![env.png](assets/env.png)
+
+The Flask web application's interface is presented below:
+
+![interface.png](assets/interface.png)
+
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/southrussian/ppo_resource_management.git
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd rl-task-new
+   ```
+3. Install the required dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## Dependencies
+
+The main dependencies of the project are listed in the `requirements.txt` file. Make sure you have all the necessary libraries installed. Ensure you are using the latest available versions of the required libraries, especially `agilerl`, `pettingzoo`, and `gymnasium`.
+
+## Usage
+
+To train the MARL model, run:
+```bash
+python train_mappo.py
 ```
-./run.sh
-```
-This will start the next pipeline: learning process, evaluation and visualization. It's recommended to set up smoothing to 0.85 for plots are highly oscillating.
 
-Note, in some cases you need to give your system a permission to run this script:
-```
-chmod + run.sh
+To launch the rescheduling application, run:
+```bash
+python app_reschedule.py
 ```
 
-If you wish to install and launch all by yourself, there is a `requirements.txt` file. In this case open a terminal window and write next to create a separated copy of a virtual environment:
-
-```
-python3 -m venv env
-```
-Than you need to get to a `env/bin` or `env/Scripts` directory which depences on your system and activate the virtual environment with next command:
-
-```
-source activate
+To test the MARL model, run:
+```bash
+python test_mappo.py
 ```
 
-Probably now you will see a `(env)` apostroph in you terminal. When ready write next to install all the necessary requirements:
+## License
 
-```
-python3 -m pip install -r requirements.txt
-```
-None, in some cases you need to change `python3` to `python` or whatever alias is already set in your system.
-
-Now you will be able to separatly launch `train.py` and `evaluate.py` python scripts like this:
-
-```
-python3 train.py
-```
-
-## Results and visualization
-
-Here are the tensorboard log charts of MADDPG training process (scaled for Alpha=2, 1.9 and 1.5):
-
-<p align="center">
-  <img src="assets/Avarage Fitnesses-4.svg" alt="fitness-1" width="200"/>
-  <img src="assets/Average Approx KL-7.svg" alt="kl-1" width="200"/>
-  <img src="assets/Average Scores-6.svg" alt="scores-1" width="200"/>
-  <img src="assets/Cumulative Reward-6.svg" alt="scores-1" width="200"/>
-</p>
-
-Here are the tensorboard log charts of MADDPG training process (scaled for Alpha=2, 1.9, 1.5 and 1):
-
-<p align="center">
-  <img src="assets/Avarage Fitnesses-3.svg" alt="fitness-1" width="200"/>
-  <img src="assets/Average Approx KL-6.svg" alt="kl-1" width="200"/>
-  <img src="assets/Average Scores-5.svg" alt="scores-1" width="200"/>
-  <img src="assets/Cumulative Reward-5.svg" alt="scores-1" width="200"/>
-</p>
-
-Histograms of average distribution from ideal distribution are presented below:
-
-<p align="center">
-  <img src="assets/distribution_chart2.svg" alt="dist-1" width="200"/>
-  <img src="assets/distribution_chart19.svg" alt="kl-1" width="200"/>
-  <img src="assets/distribution_chart15.svg" alt="scores-1" width="200"/>
-  <img src="assets/distribution_chart1.svg" alt="scores-1" width="200"/>
-</p>
-
-## Additional settings and considerations
-
-In the bash script you will find some default game environment setting to run the experints:
-- `MAX_CAPACITY` - the maximum throughput capacity of a day in the planning horizon;
-- `MAX_AGENTS` - the maximun number of unique agents, that are currently operating in environment;
-- `MAX_DAYS` - the maximum length of a moving window of a planning horizon;
-- `MAX_EPISODE_LENGTH` - the maximum duration of a unit game episode.
-
-You may change these numbers, especially the maximum throughput capacity. By default it's uniform across the planning horizon, but if you would like to you do may set a custom distribution using `ideal_state` variable inside `sсheduler.py` script.
-
-In case you need to run the trained algorithm on a bigger set of agents you could train twelve unique agents related to a twelve unique combinations of their internal state variables. Than assign every new agent policy equal to the one of these twelve trained polices and that would be enough to somewhat generalize algorithm to operate on an arbitrary set of agents. Note, it's hard to tell if this good enough for your case or not.
-
-In case you need to adapt your agents to operate with a moving planning horizon you probably would like to set a bigger value `num_envs` in a `train.py` script and initialize each game environment with a different `ideal_state` parameter in `sсheduler.py` script. This will help agent to generalize their behavior to a different circumstances and mitigate overfitting to a fixed environment. Note, that this will probably cost you a lot of time as the training process will go slowly.
-
-You may find documentation [here](https://github.com/artemisak/rl-task-scheduler/blob/main/DOCUMENTATION.md).
+This project is licensed under the [Apache License](LICENSE).
 
 ## Financial Support
 
-This project is created by financial support of Laboratory of Intellectual Services and Applications of ITMO University. 2025.
+The project is funded by the financial support of the Ministry of Science and Higher Education of the Russian Federation. D. Peregorodiev, A. Isakov. ITMO University. Saint-Petersburg, Russia. All rights reserved.
