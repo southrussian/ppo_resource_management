@@ -69,6 +69,10 @@ The Flask web application's interface is presented below:
 
 ![interface.png](assets/interface.png)
 
+## Explainability
+To explain the actions of agents during the simulation in rescheduling the following system uses cloud LLM: Yandex GPT & Sber GigaChat. We get logs of agents actions, match them with Belief-Desire-Intention paradigm and put them to LLM. 
+![explain.png](assets/explain.png)
+
 ## Installation
 
 1. Clone the repository:
