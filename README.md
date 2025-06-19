@@ -1,5 +1,3 @@
-Here is the translated and refined version of your README.md:
-
 # Intelligent Explainable Scheduling Automation System
 
 ## Description
