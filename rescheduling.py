@@ -13,21 +13,21 @@ from service.gigachat_explainability import gigachat_explain
 
 class Actor(nn.Module):
     """
-       A neural network model representing the Actor in a reinforcement learning setup.
+    A neural network model representing the Actor in a reinforcement learning setup.
 
-       This class defines the architecture of the Actor model, which is used to determine
-       the action probabilities given the observation inputs.
+    This class defines the architecture of the Actor model, which is used to determine
+    the action probabilities given the observation inputs.
 
-       Attributes:
-           network (nn.Sequential): The neural network architecture consisting of linear layers and ReLU activations.
+    Attributes:
+        network (nn.Sequential): The neural network architecture consisting of linear layers and ReLU activations.
     """
     def __init__(self, obs_dim, action_dim):
         """
-                Initializes the Actor model with specified observation and action dimensions.
+        Initializes the Actor model with specified observation and action dimensions.
 
-                Args:
-                    obs_dim (int): The dimension of the observation space.
-                    action_dim (int): The dimension of the action space.
+        Args:
+            obs_dim (int): The dimension of the observation space.
+            action_dim (int): The dimension of the action space.
         """
         super(Actor, self).__init__()
         self.network = nn.Sequential(
@@ -41,55 +41,55 @@ class Actor(nn.Module):
 
     def forward(self, obs):
         """
-                Performs a forward pass through the network to compute action probabilities.
+        Performs a forward pass through the network to compute action probabilities.
 
-                Args:
-                    obs (torch.Tensor): The input observation tensor.
+        Args:
+            obs (torch.Tensor): The input observation tensor.
 
-                Returns:
-                    torch.Tensor: The output tensor representing action probabilities.
+        Returns:
+            torch.Tensor: The output tensor representing action probabilities.
         """
         return self.network(obs)
 
 
 class MAPPOAgent:
     """
-        An agent that uses the Multi-Agent Proximal Policy Optimization (MAPPO) algorithm.
+    An agent that uses the Multi-Agent Proximal Policy Optimization (MAPPO) algorithm.
 
-        This class manages the Actor model, loading its state, and selecting actions based on observations.
+    This class manages the Actor model, loading its state, and selecting actions based on observations.
 
-        Attributes:
-            actor (Actor): The Actor model used to select actions.
+    Attributes:
+        actor (Actor): The Actor model used to select actions.
     """
     def __init__(self, obs_dim, action_dim):
         """
-            Initializes the MAPPOAgent with specified observation and action dimensions.
+        Initializes the MAPPOAgent with specified observation and action dimensions.
 
-            Args:
-                obs_dim (int): The dimension of the observation space.
-                action_dim (int): The dimension of the action space.
+        Args:
+            obs_dim (int): The dimension of the observation space.
+            action_dim (int): The dimension of the action space.
         """
         self.actor = Actor(obs_dim, action_dim)
 
     def load_model(self, path):
         """
-            Loads the Actor model's state from a file.
+        Loads the Actor model's state from a file.
 
-            Args:
-                path (str): The file path to load the model state from.
+        Args:
+            path (str): The file path to load the model state from.
         """
         self.actor.load_state_dict(torch.load(path))
         self.actor.eval()
 
     def get_action(self, obs):
         """
-            Selects an action based on the given observation using the Actor model.
+        Selects an action based on the given observation using the Actor model.
 
-            Args:
-                obs (np.ndarray): The observation array.
+        Args:
+            obs (np.ndarray): The observation array.
 
-            Returns:
-                int: The selected action as an integer.
+        Returns:
+            int: The selected action as an integer.
         """
         obs = torch.FloatTensor(obs)
         with torch.no_grad():
@@ -102,29 +102,28 @@ class MAPPOAgent:
 
 class Client:
     """
-        Represents a client in the scheduling system.
+    Represents a client in the scheduling system.
 
-        This class holds information about the client's attributes and manages their satisfaction state.
+    This class holds information about the client's attributes and manages their satisfaction state.
 
-        Attributes:
+    Attributes:
+        name (str): The name of the client.
+        urgency (int): The urgency level of the client's request.
+        completeness (int): The completeness level of the client's information.
+        complexity (int): The complexity level of the client's task.
+        acceptance_rate (float): The client's acceptance rate.
+        _satisfied (bool): Whether the client is satisfied.
+        _assigned_agent (MAPPOAgent): The agent assigned to the client.
+    """
+    def __init__(self, name, urgency, completeness, complexity) -> None:
+        """
+        Initializes the Client with specified attributes.
+
+        Args:
             name (str): The name of the client.
             urgency (int): The urgency level of the client's request.
             completeness (int): The completeness level of the client's information.
             complexity (int): The complexity level of the client's task.
-            acceptance_rate (float): The client's acceptance rate.
-            _satisfied (bool): Whether the client is satisfied.
-            _assigned_agent (MAPPOAgent): The agent assigned to the client.
-    """
-
-    def __init__(self, name, urgency, completeness, complexity) -> None:
-        """
-            Initializes the Client with specified attributes.
-
-            Args:
-                name (str): The name of the client.
-                urgency (int): The urgency level of the client's request.
-                completeness (int): The completeness level of the client's information.
-                complexity (int): The complexity level of the client's task.
         """
         self.name = name
         self.urgency = urgency
@@ -137,49 +136,49 @@ class Client:
     @property
     def satisfied(self):
         """
-            Gets the satisfaction state of the client.
+        Gets the satisfaction state of the client.
 
-            Returns:
-                bool: The satisfaction state.
+        Returns:
+            bool: The satisfaction state.
         """
         return self._satisfied
 
     @satisfied.setter
     def satisfied(self, value):
         """
-            Sets the satisfaction state of the client.
+        Sets the satisfaction state of the client.
 
-            Args:
-                value (bool): The satisfaction state to set.
+        Args:
+            value (bool): The satisfaction state to set.
         """
         self._satisfied = value
 
     @property
     def assigned_agent(self):
         """
-            Gets the agent assigned to the client.
+        Gets the agent assigned to the client.
 
-            Returns:
-                MAPPOAgent: The assigned agent.
+        Returns:
+            MAPPOAgent: The assigned agent.
         """
         return self._assigned_agent
 
     @assigned_agent.setter
     def assigned_agent(self, value):
         """
-            Sets the agent assigned to the client.
+        Sets the agent assigned to the client.
 
-            Args:
-                value (MAPPOAgent): The agent to assign.
+        Args:
+            value (MAPPOAgent): The agent to assign.
         """
         self._assigned_agent = value
 
     def give_feedback(self):
         """
-            Simulates the client giving feedback.
+        Simulates the client giving feedback.
 
-            Returns:
-                bool: A random boolean representing the feedback.
+        Returns:
+            bool: A random boolean representing the feedback.
         """
         answer = np.random.choice([True, False], p=[self.acceptance_rate, 1 - self.acceptance_rate])
         if answer:
@@ -198,7 +197,6 @@ class MultiAgentSystemOperator:
         clients (list): A list of Client objects representing the clients in the system.
         logs (list): A list to store logs of agent steps and actions.
     """
-
     def __init__(self, list_of_clients) -> None:
         """
         Initializes the MultiAgentSystemOperator with a list of clients.
@@ -375,7 +373,6 @@ def calculate_deviation(observed_states, target_state):
 
     return average_bootstrap_deviation, std_bootstrap_deviation
 
-
 def calculate_scaling_factor_positions(observed_states):
     """
     Calculates the average position per scaling factor for each day of the week.
@@ -397,7 +394,6 @@ def calculate_scaling_factor_positions(observed_states):
 
     average_position_per_scaling_factor = {day: np.mean(values) for day, values in scaling_factor_positions.items()}
     return average_position_per_scaling_factor
-
 
 def format_logs_for_llm(logs, env, agent_id):
     """

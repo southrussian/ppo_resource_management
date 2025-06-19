@@ -28,8 +28,8 @@ setup_venv() {
         source venv/Scripts/activate
     fi
 
-#     echo "Installing dependencies from requirements.txt..."
-#     pip install -r requirements.txt
+    echo "Installing dependencies from requirements.txt..."
+    pip install -r requirements.txt
 }
 
 # Call the setup_venv function to create/activate the virtual environment and install dependencies
@@ -43,19 +43,19 @@ create_directory "results/$timestamp"
 echo "Running train_mappo.py..."
 if [ "$(uname)" == "Darwin" ]; then
     # For macOS
-    python3 train_mappo_.py "$timestamp"
+    python3 train_mappo.py "$timestamp"
 else
     # For other platforms (e.g., Windows)
-    python train_mappo_.py "$timestamp"
+    python train_mappo.py "$timestamp"
 fi
 
 echo "Running test_mappo.py..."
 if [ "$(uname)" == "Darwin" ]; then
     # For macOS
-    python3 test_mappo_.py "$timestamp"
+    python3 test_mapp_.py "$timestamp"
 else
     # For other platforms (e.g., Windows)
-    python test_mappo_.py "$timestamp"
+    python test_mappo.py "$timestamp"
 fi
 
 echo "Running rescheduling.py..."

@@ -253,3 +253,18 @@
 2025-04-19 00:00:15,076 - INFO - Episode 0 - {0: 2, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
 2025-04-19 00:00:19,952 - INFO - HTTP Request: POST https://ngw.devices.sberbank.ru:9443/api/v2/oauth "HTTP/1.1 200 OK"
 2025-04-19 00:00:22,729 - INFO - HTTP Request: POST https://gigachat.devices.sberbank.ru/api/v1/chat/completions "HTTP/1.1 200 OK"
+2025-06-19 19:28:46,736 - INFO - Starting episode 0
+2025-06-19 19:28:46,740 - INFO - Episode 0 - {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 2}
+2025-06-19 19:28:46,772 - INFO - Agent action: 0
+2025-06-19 19:28:46,772 - INFO - Agent action: 0
+2025-06-19 19:28:46,779 - INFO - Episode 0 - {0: 2, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
+2025-06-19 19:28:46,779 - INFO - Agent action: 2
+2025-06-19 19:28:46,780 - INFO - Agent action: 2
+2025-06-19 19:28:46,784 - INFO - Episode 0 - {0: 2, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
+2025-06-19 19:28:46,784 - INFO - Starting episode 1
+2025-06-19 19:28:46,785 - INFO - Episode 1 - {0: 2, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
+2025-06-19 19:28:46,785 - INFO - Agent action: 2
+2025-06-19 19:28:46,785 - INFO - Agent action: 2
+2025-06-19 19:28:46,789 - INFO - Episode 1 - {0: 2, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
+2025-06-19 19:28:49,108 - INFO - HTTP Request: POST https://ngw.devices.sberbank.ru:9443/api/v2/oauth "HTTP/1.1 200 OK"
+2025-06-19 19:28:51,142 - INFO - HTTP Request: POST https://gigachat.devices.sberbank.ru/api/v1/chat/completions "HTTP/1.1 200 OK"

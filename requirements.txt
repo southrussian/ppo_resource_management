@@ -103,3 +103,4 @@ Werkzeug==3.0.3
 python-dotenv
 flask
 gigachat
+yandex_cloud_ml_sdk

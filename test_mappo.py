@@ -10,7 +10,23 @@ from service.gigachat_explainability import gigachat_explain
 
 
 class Actor(nn.Module):
+    """
+    A neural network model representing the Actor in a reinforcement learning setup.
+
+    This class defines the architecture of the Actor model, which is used to determine
+    the action probabilities given the observation inputs.
+
+    Attributes:
+        network (nn.Sequential): The neural network architecture consisting of linear layers and ReLU activations.
+    """
     def __init__(self, obs_dim, action_dim):
+        """
+        Initializes the Actor model with specified observation and action dimensions.
+
+        Args:
+            obs_dim (int): The dimension of the observation space.
+            action_dim (int): The dimension of the action space.
+        """
         super(Actor, self).__init__()
         self.network = nn.Sequential(
             nn.Linear(obs_dim, 64),
@@ -22,18 +38,57 @@ class Actor(nn.Module):
         )
 
     def forward(self, obs):
+        """
+        Performs a forward pass through the network to compute action probabilities.
+
+        Args:
+            obs (torch.Tensor): The input observation tensor.
+
+        Returns:
+            torch.Tensor: The output tensor representing action probabilities.
+        """
         return self.network(obs)
 
 
 class MAPPOAgent:
+    """
+    An agent that uses the Multi-Agent Proximal Policy Optimization (MAPPO) algorithm.
+
+    This class manages the Actor model, loading its state, and selecting actions based on observations.
+
+    Attributes:
+        actor (Actor): The Actor model used to select actions.
+    """
     def __init__(self, obs_dim, action_dim):
+        """
+        Initializes the MAPPOAgent with specified observation and action dimensions.
+
+        Args:
+            obs_dim (int): The dimension of the observation space.
+            action_dim (int): The dimension of the action space.
+        """
         self.actor = Actor(obs_dim, action_dim)
 
     def load_model(self, path):
+        """
+        Loads the Actor model's state from a file.
+
+        Args:
+            path (str): The file path to load the model state from.
+        """
         self.actor.load_state_dict(torch.load(path))
         self.actor.eval()
 
     def get_action(self, obs):
+        """
+        Selects an action based on the given observation using the Actor model.
+
+        Args:
+            obs (np.ndarray): The observation array.
+
+        Returns:
+            int: The selected action as an integer.
+        """
         obs = torch.FloatTensor(obs)
         with torch.no_grad():
             probs = self.actor(obs)
@@ -42,10 +97,31 @@ class MAPPOAgent:
         return action.item()
 
 
-# MAPPO Tester
 class MAPPOTester:
+    """
+    A tester class for the Multi-Agent Proximal Policy Optimization (MAPPO) algorithm.
 
+    This class is responsible for testing the trained MAPPO agents in a given environment,
+    logging their actions, and calculating performance metrics.
+
+    Attributes:
+        env (ResourceScheduler): The environment in which the agents operate.
+        options (dict): Additional options for the environment.
+        n_agents (int): The number of agents.
+        agents (list): A list of MAPPOAgent instances.
+        logs (list): A list to store logs of agent steps and actions.
+    """
     def __init__(self, env, n_agents, obs_dim, action_dim, options=None):
+        """
+        Initializes the MAPPOTester with the specified environment and agent parameters.
+
+        Args:
+            env (ResourceScheduler): The environment in which the agents operate.
+            n_agents (int): The number of agents.
+            obs_dim (int): The dimension of the observation space.
+            action_dim (int): The dimension of the action space.
+            options (dict, optional): Additional options for the environment. Defaults to None.
+        """
         self.env = env
         self.options = options
         self.n_agents = n_agents
@@ -54,28 +130,49 @@ class MAPPOTester:
 
     @staticmethod
     def calculate_deviation(observed_states, target_state):
-        num_episodes = len(observed_states)
-        bootstrap_average_distribution = {i: sum(episode[i] for episode in observed_states) / num_episodes for i in
-                                          range(7)}
+        """
+        Calculates the average and standard deviation of percentage deviations between observed and target states.
 
-        bootstrap_average_percentage_deviations = {i: np.nan for i in range(7)}  # Use np.nan as a default value
+        Args:
+            observed_states (list): A list of dictionaries representing the observed states for each episode.
+            target_state (dict): A dictionary representing the target state with 'min' and 'max' values for each day.
+
+        Returns:
+            tuple: A tuple containing the average bootstrap deviation and the standard deviation of the bootstrap deviations.
+        """
+        num_episodes = len(observed_states)
+        bootstrap_average_distribution = {i: sum(episode[i] for episode in observed_states) / num_episodes for i in range(7)}
+
+        bootstrap_average_percentage_deviations = {i: np.nan for i in range(7)}
         mean_target_state = {day: (target_state[day]['max'] + target_state[day]['min']) / 2 for day in target_state}
 
         for key, value in bootstrap_average_distribution.items():
             target_value = mean_target_state[key]
-            if target_value != 0:  # Avoid division by zero
+            if target_value != 0:
                 bootstrap_average_percentage_deviations[key] = np.abs(target_value - value) / target_value
             else:
-                bootstrap_average_percentage_deviations[key] = np.nan  # Handle the zero case
+                bootstrap_average_percentage_deviations[key] = np.nan
 
-        average_bootstrap_deviation = np.nanmean(
-            list(bootstrap_average_percentage_deviations.values()))  # Use np.nanmean to ignore NaNs
-        std_bootstrap_deviation = np.nanstd(
-            list(bootstrap_average_percentage_deviations.values()))  # Use np.nanstd to ignore NaNs
+        average_bootstrap_deviation = np.nanmean(list(bootstrap_average_percentage_deviations.values()))
+        std_bootstrap_deviation = np.nanstd(list(bootstrap_average_percentage_deviations.values()))
 
         return average_bootstrap_deviation, std_bootstrap_deviation
 
     def _log_agent_step(self, agent_id, episode, step, action, info, next_info):
+        """
+        Logs the step taken by an agent, including beliefs, desires, intentions, and state after action.
+
+        Args:
+            agent_id (int): The ID of the agent.
+            episode (int): The current episode number.
+            step (int): The current step number within the episode.
+            action (int): The action taken by the agent.
+            info (dict): Information about the agent's state before the action.
+            next_info (dict): Information about the agent's state after the action.
+
+        Returns:
+            dict: A dictionary containing the logged information.
+        """
         current_position = info['position']
         prev_day = (current_position - 1) % 7
         next_day = (current_position + 1) % 7
@@ -107,6 +204,18 @@ class MAPPOTester:
         }
 
     def test(self, n_episodes, max_steps, target_state):
+        """
+        Tests the agents for a specified number of episodes and steps.
+
+        Args:
+            n_episodes (int): The number of episodes to test.
+            max_steps (int): The maximum number of steps per episode.
+            target_state (dict): The target state for the environment.
+
+        Returns:
+            tuple: A tuple containing the mean deviation, standard deviation, average bids per day,
+                   average position per scaling factor, and standard deviation of combined positions.
+        """
         all_observed_states = []
         all_final_positions = []
         all_scaling_factors = []
@@ -118,8 +227,7 @@ class MAPPOTester:
             print(f'\nEpisode {e}:')
             print(self.env.render())
             print([(pos, sf) for pos, sf in zip([agent_info['position'] for agent_info in info.values()],
-                                                [agent_info['scaling_factor'] for agent_info in
-                                                 info.values()])])
+                                                [agent_info['scaling_factor'] for agent_info in info.values()])])
             episode_observed_states = []
 
             for step in range(max_steps):
@@ -136,7 +244,6 @@ class MAPPOTester:
 
                 next_obs, _, dones, truncations, next_info = self.env.step(actions)
 
-                # Log post-step state
                 for log in step_logs:
                     agent_id = log['agent_id']
                     log_entry = self._log_agent_step(
@@ -166,8 +273,7 @@ class MAPPOTester:
             all_observed_states.extend(episode_observed_states)
 
         mean_deviation, std_deviation = self.calculate_deviation(all_observed_states, target_state)
-        avg_bids_per_day = {day: sum(state[day] for state in all_observed_states) / len(all_observed_states) for day in
-                            range(7)}
+        avg_bids_per_day = {day: sum(state[day] for state in all_observed_states) / len(all_observed_states) for day in range(7)}
 
         scaling_factor_positions = {}
         for sf, pos in zip(all_scaling_factors, all_final_positions):
@@ -186,6 +292,14 @@ class MAPPOTester:
         return mean_deviation, std_deviation, avg_bids_per_day, avg_position_per_scaling_factor, std_combined_positions
 
     def bootstrap_test(self, n_episodes, max_steps, target_state):
+        """
+        Runs a bootstrap test for the agents and prints the results.
+
+        Args:
+            n_episodes (int): The number of episodes to test.
+            max_steps (int): The maximum number of steps per episode.
+            target_state (dict): The target state for the environment.
+        """
         mean_deviation, std_deviation, avg_bids, avg_positions, std_combined_positions = self.test(n_episodes, max_steps, target_state)
 
         print(f"Average number of bids per day: {avg_bids}")
@@ -195,11 +309,26 @@ class MAPPOTester:
         print(f"4 & 6 SF std: {std_combined_positions}")
 
     def load_model(self, path):
+        """
+        Loads the models for all agents from the specified path.
+
+        Args:
+            path (str): The path to the directory where the models are saved.
+        """
         for i, agent in enumerate(self.agents):
             agent.load_model(os.path.join(path, f'actor_{i}.pth'))
         print(f"Loaded model from {path}")
 
     def format_logs_for_llm(self, agent_id):
+        """
+        Formats logs for a specific agent to be used with a Large Language Model (LLM).
+
+        Args:
+            agent_id (int): The ID of the agent whose logs are to be formatted.
+
+        Returns:
+            str: A formatted string containing the logs for the specified agent.
+        """
         formatted = []
         for log in self.logs:
             if log['agent_id'] == agent_id:
