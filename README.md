@@ -90,19 +90,19 @@ The main dependencies of the project are listed in the `requirements.txt` file. 
 
 ## Usage
 
-To train the MARL model, run:
+To train the MAPPO model, run:
 ```bash
 python train_mappo.py
+```
+
+To test the MAPPO model, run:
+```bash
+python test_mappo.py
 ```
 
 To launch the rescheduling application, run:
 ```bash
 python app_reschedule.py
-```
-
-To test the MARL model, run:
-```bash
-python test_mappo.py
 ```
 
 ## License
